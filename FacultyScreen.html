@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Faculty Portal — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="DefineMarks.html">Define Marks</a>
+      <a href="EvaluatePaper.html">Evaluate Answers</a>
+      <a href="FacultyScreen.html" class="active">Rank Calculation</a>
+      <a href="DemoDetails.html">Demo Details</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoDetailsModal()">⚡ Demo Details</button>
+      <a class="button button-outline" href="index.html">Logout</a>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="portal-wrapper">
+    <div class="portal-header">
+      <div>
+        <h2>Faculty Evaluation Hub</h2>
+        <p style="color:#667060; font-size:14px; margin-top:2px;">Logged in as: <b id="faculty-name">ProfSharma</b> (Faculty)</p>
+      </div>
+      <div class="portal-nav">
+        <a href="DefineMarks.html">Define Marks</a>
+        <a href="EvaluatePaper.html">Evaluate Answers</a>
+        <a href="FacultyScreen.html" class="active">Leaderboard & Ranks</a>
+        <a href="index.html" style="color:#cf222e;">Logout</a>
+      </div>
+    </div>
+
+    <!-- RECENT EVALUATION RESULT BANNER (IF ANY) -->
+    <div id="latest-eval-box" style="display:none; margin-bottom:24px;"></div>
+
+    <!-- LEADERBOARD CARD -->
+    <div class="portal-card">
+      <h3>
+        <span>Student Performance Leaderboard (Rank Calculation)</span>
+        <a href="EvaluatePaper.html" class="button button-teal" style="font-size:12px; height:34px;">+ Evaluate Another Paper</a>
+      </h3>
+      <p style="color:#636c5e; font-size:14px; margin-bottom:20px;">Cumulative marks awarded by AI semantic & keyword similarity evaluation.</p>
+
+      <div id="ranks-table-container"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('evalvate_current_user') || '{"username":"ProfSharma"}');
+      document.getElementById('faculty-name').innerText = user.username || 'ProfSharma';
+
+      // Check if there was a recent evaluation
+      const latest = JSON.parse(localStorage.getItem('evalvate_latest_eval') || 'null');
+      if (latest) {
+        document.getElementById('latest-eval-box').style.display = 'block';
+        document.getElementById('latest-eval-box').innerHTML = `
+          <div style="background:#eaf4fc; border:1px solid #b6d4fe; border-radius:12px; padding:20px; box-shadow:var(--shadow);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <span style="background:#0d6efd; color:#fff; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:4px;">LATEST EVALUATION</span>
+                <h4 style="margin:6px 0 2px; color:#084298; font-size:18px;">${latest.studentName} (Roll No: ${latest.rollNumber})</h4>
+                <div style="color:#555; font-size:13px;">Evaluation completed using SentenceTransformer & SpaCy AI</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:11px; color:#555;">TOTAL AWARDED</div>
+                <div style="font-size:24px; font-weight:800; color:#198754;">${latest.totalAwarded.toFixed(2)} <small style="font-size:14px; color:#888;">/ ${latest.totalMax}</small></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      renderRanks();
+    });
+
+    function renderRanks() {
+      const db = getDB();
+      const sorted = [...db.evaluations].sort((a,b) => b.totalAwarded - a.totalAwarded);
+
+      let html = `
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th style="width:70px; text-align:center;">Rank</th>
+              <th>Roll Number</th>
+              <th>Student Name</th>
+              <th>Total Marks</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      sorted.forEach((item, idx) => {
+        const rank = idx + 1;
+        let badgeClass = 'rank-other';
+        if (rank === 1) badgeClass = 'rank-1';
+        else if (rank === 2) badgeClass = 'rank-2';
+        else if (rank === 3) badgeClass = 'rank-3';
+
+        html += `
+          <tr>
+            <td style="text-align:center;"><span class="rank-badge ${badgeClass}">${rank}</span></td>
+            <td style="font-family:'JetBrains Mono', monospace; font-weight:bold;">${item.rollNumber}</td>
+            <td style="font-weight:600;">${item.studentName}</td>
+            <td><b style="font-size:16px; color:#2e7d32;">${item.totalAwarded.toFixed(2)}</b> <span style="color:#888; font-size:12px;">/ ${item.totalMax}</span></td>
+            <td><span style="background:#eef7ee; color:#2e7d32; font-weight:700; padding:4px 8px; border-radius:6px; font-size:11px;">EVALUATED</span></td>
+            <td><a href="ViewMarks.html?roll=${item.rollNumber}" style="color:#0d6efd; font-weight:bold; font-size:12px;">View Report →</a></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById('ranks-table-container').innerHTML = html;
+    }
+  </script>
+</body>
+</html>

@@ -159,6 +159,10 @@ html, body{
 
             <button type="submit">LOGIN</button>
 
+            <button type="button" onclick="document.getElementsByName('t1')[0].value='ProfSharma'; document.getElementsByName('t2')[0].value='pass123';" style="background:#173838; color:#5ce1e6; border:1px dashed #3aafa9; margin-top:14px; width:96%; height:40px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">
+                ⚡ Auto-Fill Demo Credentials
+            </button>
+
             <div class="register">
                 New user?
                 <a href="{% url 'Register' %}">Register</a>

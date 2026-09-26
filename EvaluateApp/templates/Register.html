@@ -23,9 +23,9 @@
                 alert("Please enter email");
                 formObj.t4.focus(); return false;
             }
-            var filter = /^([a-zA-Z0-9_\.\-])+\@([a-z]+\.)+(com)$/;
+            var filter = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!filter.test(formObj.t4.value)) {
-                alert("Invalid email format");
+                alert("Please enter a valid email address");
                 formObj.t4.focus(); return false;
             }
             if(formObj.t5.value.length==0){
@@ -178,7 +178,7 @@
     <h3>NEW USER SIGNUP</h3>
 
     {% if data %}
-        <p style="color:red;text-align:center;">{{ data }}</p>
+        <div style="text-align:center; margin-bottom:15px; font-size:14px;">{{ data|safe }}</div>
     {% endif %}
 
     <label style="color:white;">Username:</label>

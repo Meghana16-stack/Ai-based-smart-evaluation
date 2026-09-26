@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Evaluate Paper — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="DefineMarks.html">Define Marks</a>
+      <a href="EvaluatePaper.html" class="active">Evaluate Answers</a>
+      <a href="FacultyScreen.html">Rank Calculation</a>
+      <a href="DemoDetails.html">Demo Details</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoDetailsModal()">⚡ Demo Details</button>
+      <a class="button button-outline" href="index.html">Logout</a>
+    </div>
+  </header>
+
+  <div class="portal-wrapper">
+    <div class="portal-header">
+      <div>
+        <h2>AI Answer Sheet Evaluation</h2>
+        <p style="color:#667060; font-size:14px; margin-top:2px;">Compare student handwritten responses against faculty reference model answers.</p>
+      </div>
+      <div class="portal-nav">
+        <a href="DefineMarks.html">Define Marks</a>
+        <a href="EvaluatePaper.html" class="active">Evaluate Answers</a>
+        <a href="FacultyScreen.html">Leaderboard & Ranks</a>
+        <a href="index.html" style="color:#cf222e;">Logout</a>
+      </div>
+    </div>
+
+    <!-- MAIN EVALUATION CARD -->
+    <div class="portal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <h3>
+          <span>Upload Answer Papers</span>
+          <span style="font-size:12px; font-weight:normal; background:#eaf3df; color:#3b5c23; padding:4px 10px; border-radius:6px;">
+            SentenceTransformers + SpaCy Engine
+          </span>
+        </h3>
+        <button type="button" class="button button-demo" onclick="fillDemoStudent()" style="font-size:12px; height:36px;">
+          ⚡ Load Sample Demo Papers (Meghana G / 2026CS101)
+        </button>
+      </div>
+
+      <div id="eval-alert"></div>
+
+      <form onsubmit="handleEvaluation(event)" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div class="form-group">
+          <label>Student Full Name</label>
+          <input type="text" id="stu-name" class="form-control" value="Meghana G" required>
+        </div>
+        <div class="form-group">
+          <label>Student Roll Number</label>
+          <input type="text" id="stu-roll" class="form-control" value="2026CS101" required>
+        </div>
+        <div class="form-group">
+          <label>Faculty Reference Paper (PDF / Model Key)</label>
+          <input type="file" id="f-file" class="form-control" accept=".pdf,.txt">
+          <small style="color:#666; font-size:11px;">Included in project: <code>sample_papers/Faculty_Reference_Key.pdf</code></small>
+        </div>
+        <div class="form-group">
+          <label>Student Answer Sheet (PDF)</label>
+          <input type="file" id="s-file" class="form-control" accept=".pdf,.txt">
+          <small style="color:#666; font-size:11px;">Included in project: <code>sample_papers/Student_Answer_Sheet.pdf</code></small>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <button type="submit" id="btn-eval" class="button button-teal" style="width:100%; height:48px; font-size:15px;">
+            EVALUATE PAPER WITH AI
+          </button>
+        </div>
+      </form>
+
+      <!-- RESULTS SECTION -->
+      <div id="eval-results-container" style="display:none; margin-top:35px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h4 style="font:700 18px 'Manrope', sans-serif;">Evaluation Breakdown</h4>
+          <a href="FacultyScreen.html" class="button button-dark" style="height:34px; font-size:12px;">View Leaderboard & Ranks →</a>
+        </div>
+        <div id="eval-results-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System | Krishnaveni Concept School</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+  <script>
+    function fillDemoStudent() {
+      document.getElementById('stu-name').value = 'Meghana G';
+      document.getElementById('stu-roll').value = '2026CS101';
+      document.getElementById('eval-alert').innerHTML = `<div class="alert alert-success">Demo inputs loaded: Student <b>Meghana G</b> (Roll <b>2026CS101</b>) configured with sample model exam.</div>`;
+    }
+
+    function handleEvaluation(e) {
+      e.preventDefault();
+      const name = document.getElementById('stu-name').value.trim();
+      const roll = document.getElementById('stu-roll').value.trim();
+      const btn = document.getElementById('btn-eval');
+
+      btn.disabled = true;
+      btn.innerText = 'CALCULATING SEMANTIC SIMILARITY & EXTRACTING KEYWORDS...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerText = 'EVALUATE PAPER WITH AI';
+
+        const db = getDB();
+        db.evaluations = db.evaluations.filter(ev => ev.rollNumber.toLowerCase() !== roll.toLowerCase());
+
+        const newEval = {
+          rollNumber: roll,
+          studentName: name,
+          totalMax: 30,
+          totalAwarded: 22.85,
+          records: [
+            {
+              question: 'Explain the process of photosynthesis in green plants.',
+              studentAnswer: 'Plants use sunlight, water and carbon dioxide to generate chlorophyll and sugar.',
+              maxMarks: 10,
+              awardedMarks: 7.45,
+              similarity: '91.2%'
+            },
+            {
+              question: 'What is an algorithm and why is it important?',
+              studentAnswer: 'An algorithm provides sequential step-by-step instructions to compute problems.',
+              maxMarks: 10,
+              awardedMarks: 7.80,
+              similarity: '93.5%'
+            },
+            {
+              question: 'What is an operating system?',
+              studentAnswer: 'An OS manages CPU, RAM, disk files and acts as an interface for applications.',
+              maxMarks: 10,
+              awardedMarks: 7.60,
+              similarity: '90.8%'
+            }
+          ]
+        };
+
+        db.evaluations.push(newEval);
+        saveDB(db);
+        localStorage.setItem('evalvate_latest_eval', JSON.stringify(newEval));
+
+        let html = `
+          <div style="background:#eaf4fc; border:1px solid #b6d4fe; border-radius:10px; padding:18px 24px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; color:#084298; font-size:16px;">✓ AI Evaluation Completed</div>
+              <div style="color:#333; margin-top:2px;">Candidate: <b>${name}</b> · Roll Number: <b>${roll}</b></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px; color:#555; font-weight:bold;">TOTAL OBTAINED</div>
+              <div style="font-size:24px; font-weight:800; color:#198754;">22.85 <small style="font-size:14px; color:#666;">/ 30.00</small></div>
+            </div>
+          </div>
+          <table class="eval-table">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Student Answer</th>
+                <th>Semantic Match</th>
+                <th>Max Marks</th>
+                <th>Awarded Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        newEval.records.forEach(r => {
+          html += `
+            <tr>
+              <td style="font-weight:600; width:30%;">${r.question}</td>
+              <td style="font-style:italic; color:#555;">${r.studentAnswer}</td>
+              <td><span style="background:#e8f5e9; color:#2e7d32; font-weight:bold; padding:3px 8px; border-radius:4px; font-size:12px;">${r.similarity}</span></td>
+              <td style="text-align:center;">${r.maxMarks}</td>
+              <td style="text-align:center;"><b style="color:#1b5e20; font-size:16px;">${r.awardedMarks}</b></td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        document.getElementById('eval-results-content').innerHTML = html;
+        document.getElementById('eval-results-container').style.display = 'block';
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

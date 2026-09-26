@@ -8,6 +8,7 @@ EvaluateApp/static/ParseFiles/
 EvaluateApp/static/*.pdf
 EvaluateApp/static/uploads/
 *.pdf
+!sample_papers/*.pdf
 SCREENS.docx
 
 # Secrets and local environments

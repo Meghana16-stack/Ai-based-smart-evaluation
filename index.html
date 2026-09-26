@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evalvate — AI-Based Smart Evaluation System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1f271e;
+      --muted: #6e766a;
+      --green: #c5df9d;
+      --lime: #d8f2a4;
+      --paper: #f8f9f5;
+      --line: #e4e8dc;
+      --card-bg: #ffffff;
+      --primary: #243021;
+      --primary-hover: #354531;
+      --teal: #3aafa9;
+      --teal-dark: #2b7a78;
+      --accent-blue: #0d6efd;
+      --amber: #d97706;
+      --serif: Georgia, 'Times New Roman', serif;
+      --radius: 12px;
+      --shadow: 0 10px 30px rgba(31, 39, 30, 0.07);
+      --shadow-lg: 0 20px 45px rgba(31, 39, 30, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* FLOATING DEMO DETAILS BADGE */
+    .demo-floating-pill {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      background: #111e1e;
+      color: #ffffff;
+      border: 1.5px solid #3aafa9;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .demo-floating-pill:hover {
+      transform: translateY(-3px) scale(1.02);
+      background: #192b2b;
+      box-shadow: 0 16px 40px rgba(58, 175, 169, 0.35);
+    }
+    .demo-floating-pill .pulse-dot {
+      width: 9px;
+      height: 9px;
+      background: #3aafa9;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(58, 175, 169, 0.35);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(58, 175, 169, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(58, 175, 169, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(58, 175, 169, 0); }
+    }
+
+    /* TOPBAR */
+    .topbar {
+      height: 82px;
+      max-width: 1240px;
+      margin: auto;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(248, 249, 245, 0.96);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font: 800 22px 'Manrope', sans-serif;
+      letter-spacing: -1px;
+      cursor: pointer;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px 10px 10px 4px;
+      background: #bada93;
+      font: 800 20px Georgia, serif;
+      color: #243021;
+    }
+    .brand-dot { color: #82a85a; }
+
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links button {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555e51;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .nav-links button:hover, .nav-links button.active {
+      color: #1f271e;
+      background: #e8ede0;
+    }
+
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .button {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+    .button-dark { background: #243021; color: #fff; }
+    .button-dark:hover { background: #354531; }
+    .button-teal { background: #3aafa9; color: #fff; }
+    .button-teal:hover { background: #2b7a78; }
+    .button-outline { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+    .button-outline:hover { background: #ffffff; border-color: #ccd2c4; }
+    .button-demo { background: #edf4e7; color: #496332; border: 1px solid #d2e4bf; }
+    .button-demo:hover { background: #e0edd3; color: #354a22; }
+
+    /* VIEW MANAGEMENT */
+    .view-container {
+      max-width: 1240px;
+      margin: auto;
+      padding: 30px 24px 80px;
+      display: none;
+    }
+    .view-container.active { display: block; animation: fadeIn 0.22s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* HERO */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+      gap: 40px;
+      padding: 40px 0 60px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: #617551;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      background: #8caa67;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px #e5eddc;
+    }
+    .hero h1 {
+      font: 700 clamp(40px, 5.2vw, 64px)/1.08 'Manrope', sans-serif;
+      letter-spacing: -2.5px;
+      margin-bottom: 22px;
+      color: var(--ink);
+    }
+    .hero h1 span {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-style: italic;
+      color: #69894a;
+    }
+    .hero-text {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #5d6657;
+      max-width: 520px;
+      margin-bottom: 34px;
+    }
+    .hero-actions { display: flex; gap: 14px; margin-bottom: 38px; flex-wrap: wrap; }
+
+    .school-note {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      color: #646c5f;
+      background: #edf1e6;
+      padding: 12px 18px;
+      border-radius: 10px;
+      width: fit-content;
+      border: 1px solid #dee5d6;
+    }
+    .school-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: grid;
+      place-items: center;
+      color: #729146;
+      font-size: 18px;
+    }
+
+    /* HERO CARD ART */
+    .hero-art {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .paper-card {
+      width: 340px;
+      background: #ffffff;
+      border: 1px solid #e1e5dc;
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      padding: 26px;
+      transform: rotate(-2.5deg);
+      transition: transform 0.3s;
+    }
+    .paper-card:hover { transform: rotate(0deg) scale(1.02); }
+    .paper-top { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #9da396; }
+    .paper-title { font: 700 17px 'Manrope', sans-serif; margin: 12px 0 16px; color: #283025; }
+    .q-preview { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed #e6e9e1; }
+    .q-preview b { font-size: 12px; display: block; margin-bottom: 5px; color: #353e32; }
+    .handwritten {
+      font: italic 13px var(--serif);
+      color: #555f50;
+      background: #fbfcf8;
+      padding: 6px 10px;
+      border-left: 3px solid #bada93;
+      border-radius: 4px;
+    }
+    .mark-tag {
+      display: inline-flex;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      background: #eef5e5;
+      color: #496d30;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+    .paper-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      margin-top: 8px;
+      border-top: 1px solid #edf1e9;
+    }
+    .badge-score {
+      font: 800 18px 'Manrope', sans-serif;
+      color: #3b5c23;
+      background: #e8f2dc;
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+
+    /* DEMO HIGHLIGHT BANNER */
+    .demo-highlight-box {
+      background: #ffffff;
+      border: 1.5px dashed #3aafa9;
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin: 20px 0 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      box-shadow: var(--shadow);
+    }
+    .demo-highlight-box .info h3 {
+      font: 700 19px 'Manrope', sans-serif;
+      color: #1a2419;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .demo-highlight-box .info p { font-size: 14px; color: #5f6859; }
+
+    /* TRUST ROW */
+    .trust-row {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 60px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .trust-label { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #8a9282; }
+    .trust-item { font-size: 14px; font-weight: 600; color: #4e5647; display: flex; align-items: center; gap: 8px; }
+    .trust-item span { color: #81a255; font-weight: 800; }
+
+    /* HOW IT WORKS */
+    .section-title { font: 700 36px/1.2 'Manrope', sans-serif; letter-spacing: -1.2px; margin-bottom: 12px; }
+    .section-desc { font-size: 16px; color: #626a5c; margin-bottom: 40px; max-width: 620px; }
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 60px; }
+    .step-card {
+      background: #ffffff;
+      border: 1px solid #e3e7dc;
+      border-radius: 14px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .step-num { font: 800 12px 'Manrope', sans-serif; color: #7f946c; letter-spacing: 1px; margin-bottom: 16px; }
+    .step-card h3 { font: 700 18px 'Manrope', sans-serif; margin-bottom: 10px; color: #283025; }
+    .step-card p { font-size: 14px; color: #667061; line-height: 1.6; }
+
+    /* AUTH CARD */
+    .auth-container {
+      max-width: 440px;
+      margin: 40px auto;
+      background: #0b1f1f;
+      border-radius: 14px;
+      padding: 38px 34px;
+      color: #fff;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .auth-container h2 { font: 700 24px 'Manrope', sans-serif; letter-spacing: 2px; margin-bottom: 24px; color: #ffffff; }
+    .form-group { margin-bottom: 18px; text-align: left; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #cbd5d5; margin-bottom: 6px; }
+    .form-control {
+      width: 100%;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid #234545;
+      background: #ffffff;
+      color: #111;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+    .form-control:focus { border-color: #3aafa9; box-shadow: 0 0 0 3px rgba(58, 175, 169, 0.35); }
+    .auth-button {
+      width: 100%;
+      height: 46px;
+      background: #3aafa9;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .auth-button:hover { background: #2b7a78; transform: translateY(-1px); }
+    .demo-autofill-btn {
+      width: 100%;
+      height: 38px;
+      background: #173838;
+      color: #6fe3dd;
+      border: 1px dashed #3aafa9;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .demo-autofill-btn:hover { background: #224c4c; color: #ffffff; }
+    .auth-switch { margin-top: 22px; font-size: 14px; color: #9bb0b0; }
+    .auth-switch a { color: #3aafa9; font-weight: 700; cursor: pointer; }
+
+    /* PORTALS */
+    .portal-header {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 24px 30px;
+      margin-bottom: 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .portal-header h2 { font: 700 24px 'Manrope', sans-serif; color: #1c241a; }
+    .portal-nav { display: flex; gap: 8px; background: #edf1e8; padding: 5px; border-radius: 10px; flex-wrap: wrap; }
+    .portal-nav-btn {
+      padding: 8px 16px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: #555f4f;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .portal-nav-btn:hover { color: #1f271d; }
+    .portal-nav-btn.active { background: #ffffff; color: #1f271d; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+    .portal-card {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 26px;
+    }
+    .portal-card h3 {
+      font: 700 20px 'Manrope', sans-serif;
+      margin-bottom: 18px;
+      color: #1f271d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* TABLES */
+    .eval-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+    .eval-table th { background: #f1f4ed; color: #394235; text-align: left; padding: 12px 16px; font-weight: 700; border-bottom: 2px solid var(--line); }
+    .eval-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); color: #2c3529; vertical-align: top; }
+    .eval-table tr:hover { background: #fbfcf9; }
+
+    .rank-badge { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 800; font-size: 12px; }
+    .rank-1 { background: #ffd700; color: #665000; }
+    .rank-2 { background: #e0e0e0; color: #444; }
+    .rank-3 { background: #cd7f32; color: #fff; }
+    .rank-other { background: #edf1e7; color: #555; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 14px; }
+    .alert-error { background: #ffebe9; color: #cf222e; border: 1px solid #ff8182; }
+    .alert-success { background: #dafbe1; color: #1a7f37; border: 1px solid #4ac26b; }
+
+    /* MODAL: DEMO DETAILS */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 25, 17, 0.6);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 34px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 22px;
+      background: #edf1e8;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      color: #4b5446;
+      display: grid;
+      place-items: center;
+    }
+    .modal-close:hover { background: #e0e7da; color: #111; }
+
+    .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .demo-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px 18px;
+      background: #fbfcf9;
+    }
+    .demo-card h4 { font: 700 16px 'Manrope', sans-serif; margin-bottom: 8px; color: #21291d; }
+    .demo-card p { font-size: 13px; color: #626a5c; margin-bottom: 12px; }
+
+    /* FOOTER */
+    .site-footer {
+      max-width: 1240px;
+      margin: 80px auto 40px;
+      padding: 24px 28px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      color: #7b8375;
+      font-size: 13px;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .demo-grid { grid-template-columns: 1fr; }
+      .topbar { padding: 0 16px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLOATING DEMO BUTTON -->
+  <div class="demo-floating-pill" onclick="openDemoModal()" title="Click to view all demo details & credentials">
+    <div class="pulse-dot"></div>
+    <span>⚡ Demo Details & Auto-Fill</span>
+  </div>
+
+  <!-- DEMO DETAILS MODAL -->
+  <div id="demo-modal" class="modal-backdrop" onclick="if(event.target===this) closeDemoModal()">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeDemoModal()">×</button>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+        <span style="font-size:22px;">⚡</span>
+        <h2 style="font:800 24px 'Manrope', sans-serif; color:#1a2318;">Demo Details & Quick Access</h2>
+      </div>
+      <p style="color:#636c5e; font-size:14px; margin-bottom:20px;">Use these pre-configured credentials and sample papers to test the entire evaluation workflow instantly.</p>
+
+      <div class="demo-grid">
+        <!-- Faculty Demo Card -->
+        <div class="demo-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4>Faculty Portal</h4>
+            <span style="background:#eaf2e1; color:#395a1e; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">EXAMINER</span>
+          </div>
+          <p>Define marks, upload PDF papers, run AI evaluation, view leaderboard.</p>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:12px; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #e1e6db; margin-bottom:12px;">
+            Username: <b>ProfSharma</b><br>
+            Password: <b>pass123</b>
+          </div>
+          <button class="button button-teal" style="width:100%; height:36px; font-size:12px;" onclick="autoLoginFaculty()">
+            ⚡ 1-Click Login as Faculty
+          </button>
+        </div>
+
+        <!-- Student Demo Card -->
+        <div class="demo-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4>Student Portal</h4>
+            <span style="background:#e7f0fa; color:#1a528e; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">CANDIDATE</span>
+          </div>
+          <p>Look up question-by-question marks, max marks & awarded score.</p>
+          <div style="font-family:'JetBrains Mono', monospace; font-size:12px; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #e1e6db; margin-bottom:12px;">
+            Username: <b>Meghana</b><br>
+            Password: <b>pass123</b><br>
+            Sample Roll: <b>2026CS101</b>
+          </div>
+          <button class="button button-dark" style="width:100%; height:36px; font-size:12px;" onclick="autoLoginStudent()">
+            ⚡ 1-Click Login as Student
+          </button>
+        </div>
+      </div>
+
+      <!-- Sample Exam Questions Included -->
+      <div style="background:#f7f9f4; border:1px solid #e4e9dc; border-radius:10px; padding:18px; margin-bottom:16px;">
+        <h4 style="font:700 15px 'Manrope', sans-serif; color:#21291d; margin-bottom:8px;">Included Sample Exam & Answer Keys:</h4>
+        <ul style="font-size:13px; color:#556050; padding-left:18px; line-height:1.7;">
+          <li><b>Q1 (10 Marks):</b> Explain photosynthesis in green plants.</li>
+          <li><b>Q2 (10 Marks):</b> What is an algorithm and why is it important?</li>
+          <li><b>Q3 (10 Marks):</b> What is an operating system?</li>
+        </ul>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="button button-demo" style="height:32px; font-size:12px;" onclick="loadAndRunDemoEval()">
+            🚀 Run Instant Demo Evaluation
+          </button>
+          <button class="button button-outline" style="height:32px; font-size:12px;" onclick="closeDemoModal(); showView('student-dashboard'); lookupMarks('2026CS101');">
+            📊 View Sample Student Report (2026CS101)
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align:right;">
+        <button class="button button-outline" style="height:36px;" onclick="closeDemoModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand" onclick="showView('landing')">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </div>
+
+    <nav class="nav-links">
+      <button onclick="showView('landing')" id="nav-home" class="active">Home</button>
+      <button onclick="scrollToSection('how-it-works')">How it works</button>
+      <button onclick="scrollToSection('for-schools')">For schools</button>
+      <button onclick="showView('student-login')" id="nav-student">Student Portal</button>
+      <button onclick="showView('faculty-login')" id="nav-faculty">Faculty Portal</button>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoModal()">⚡ Demo Details</button>
+      <button class="button button-outline" onclick="showView('register')">Sign up</button>
+      <button class="button button-dark" onclick="showView('faculty-login')">Faculty Portal ↗</button>
+    </div>
+  </header>
+
+  <!-- ==================== 1. LANDING VIEW ==================== -->
+  <main id="view-landing" class="view-container active">
+    
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span> AI-Powered Handwritten Evaluation
+        </div>
+        <h1>Good work<br>deserves <span>good feedback.</span></h1>
+        <p class="hero-text">
+          Bring handwritten answer sheets into focus. Evalvate reads student answers, compares keyword relevance and semantic depth against teacher model keys, and automates fair scoring with complete transparency.
+        </p>
+
+        <div class="hero-actions">
+          <button class="button button-dark" onclick="showView('faculty-login')">Try Faculty Portal ↗</button>
+          <button class="button button-outline" onclick="showView('student-login')">Student Results →</button>
+          <button class="button button-demo" onclick="openDemoModal()">⚡ View Demo Details</button>
+        </div>
+
+        <div class="school-note">
+          <span class="school-icon">✳</span>
+          <div>
+            <strong>AI-Based Smart Evaluation System</strong><br>
+            <small>Designed & Built at BVRIT by <b>G. Meghana</b></small>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-art">
+        <div class="paper-card">
+          <div class="paper-top">
+            <span>ANSWER SHEET</span>
+            <span>ROLL: 2026CS101</span>
+          </div>
+          <div class="paper-title">Computer Science & Science</div>
+          
+          <div class="q-preview">
+            <b>Q1. Explain photosynthesis process.</b>
+            <div class="handwritten">Plants convert sunlight, water & CO2 into glucose energy...</div>
+            <span class="mark-tag">✓ Semantic match: 89% · 7.16 / 10</span>
+          </div>
+
+          <div class="q-preview">
+            <b>Q2. What is an algorithm?</b>
+            <div class="handwritten">A step-by-step sequence of instructions to solve problems...</div>
+            <span class="mark-tag">✓ Keywords found: 4/4 · 7.38 / 10</span>
+          </div>
+
+          <div class="paper-bottom">
+            <span style="font-size:12px; color:#788272;">Total Evaluated</span>
+            <span class="badge-score">21.69 <small style="font-size:12px; color:#637752;">/ 30</small></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Demo Details Highlight -->
+    <section class="demo-highlight-box">
+      <div class="info">
+        <h3><span>⚡</span> Ready-to-Test Demo Environment</h3>
+        <p>Pre-configured with Faculty & Student accounts, sample test papers, and instant leaderboards.</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="button button-teal" onclick="autoLoginFaculty()">Login as Faculty (ProfSharma)</button>
+        <button class="button button-dark" onclick="autoLoginStudent()">Login as Student (Meghana)</button>
+        <button class="button button-demo" onclick="openDemoModal()">Full Demo Info ↗</button>
+      </div>
+    </section>
+
+    <!-- Trust row -->
+    <section class="trust-row" id="for-schools">
+      <div class="trust-label">CLASSROOM READY</div>
+      <div class="trust-item"><span>01</span> Handwritten PDF OCR support</div>
+      <div class="trust-item"><span>02</span> SpaCy + Sentence Transformer NLP</div>
+      <div class="trust-item"><span>03</span> Automated Student Leaderboard</div>
+      <div class="trust-item"><span>04</span> Question-wise Breakdown</div>
+    </section>
+
+    <!-- Steps -->
+    <section class="steps-section" id="how-it-works">
+      <h2 class="section-title">From paper to progress in three simple steps.</h2>
+      <p class="section-desc">Teachers stay fully in control of the syllabus and grading criteria. Students get clear, trustworthy feedback.</p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">STEP 01 ↗</div>
+          <h3>1. Define Marks & Criteria</h3>
+          <p>Faculty configure question numbers and allocate max marks for each section. Set standards tailored for your exam.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">STEP 02 ↗</div>
+          <h3>2. AI Answer Evaluation</h3>
+          <p>Upload the teacher reference key alongside the student's paper. Natural Language Processing calculates semantic similarity and core keyword presence.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">STEP 03 ↗</div>
+          <h3>3. Transparent Results</h3>
+          <p>Instant leaderboard with student ranks. Students sign in with their roll number to inspect individual question marks and feedback.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== 2. FACULTY LOGIN ==================== -->
+  <section id="view-faculty-login" class="view-container">
+    <div class="auth-container">
+      <h2>FACULTY LOGIN</h2>
+      <div id="faculty-login-alert"></div>
+      
+      <form onsubmit="handleFacultyLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="faculty-uname" class="form-control" placeholder="Enter username" value="ProfSharma" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="faculty-pwd" class="form-control" placeholder="Enter password" value="pass123" required>
+        </div>
+        <button type="submit" class="auth-button">LOGIN TO FACULTY PORTAL</button>
+      </form>
+
+      <button class="demo-autofill-btn" onclick="fillFacultyDemo()">
+        ⚡ Fill Demo Faculty Credentials (ProfSharma / pass123)
+      </button>
+
+      <div class="auth-switch">
+        New faculty? <a onclick="showView('register')">Register here</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 3. STUDENT LOGIN ==================== -->
+  <section id="view-student-login" class="view-container">
+    <div class="auth-container">
+      <h2>STUDENT LOGIN</h2>
+      <div id="student-login-alert"></div>
+      
+      <form onsubmit="handleStudentLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="student-uname" class="form-control" placeholder="Enter username" value="Meghana" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="student-pwd" class="form-control" placeholder="Enter password" value="pass123" required>
+        </div>
+        <button type="submit" class="auth-button">LOGIN TO STUDENT PORTAL</button>
+      </form>
+
+      <button class="demo-autofill-btn" onclick="fillStudentDemo()">
+        ⚡ Fill Demo Student Credentials (Meghana / pass123)
+      </button>
+
+      <div class="auth-switch">
+        New student? <a onclick="showView('register')">Register here</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. REGISTRATION ==================== -->
+  <section id="view-register" class="view-container">
+    <div class="auth-container" style="max-width: 480px;">
+      <h2>NEW USER SIGNUP</h2>
+      <div id="register-alert"></div>
+      
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="reg-uname" class="form-control" placeholder="Choose a username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="reg-pwd" class="form-control" placeholder="Create a password" required>
+        </div>
+        <div class="form-group">
+          <label>Contact Number</label>
+          <input type="text" id="reg-contact" class="form-control" placeholder="10-digit mobile number" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="name@school.edu" required>
+        </div>
+        <div class="form-group">
+          <label>Address / Campus</label>
+          <input type="text" id="reg-address" class="form-control" placeholder="Campus / Hostel / City" required>
+        </div>
+        <div class="form-group">
+          <label>User Type</label>
+          <select id="reg-usertype" class="form-control" required>
+            <option value="Faculty">Faculty</option>
+            <option value="Student">Student</option>
+          </select>
+        </div>
+        <button type="submit" class="auth-button">CREATE ACCOUNT</button>
+      </form>
+
+      <div class="auth-switch">
+        Already registered? <a onclick="showView('faculty-login')">Sign in here</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 5. FACULTY DASHBOARD ==================== -->
+  <section id="view-faculty-dashboard" class="view-container">
+    <div class="portal-header">
+      <div>
+        <h2 id="faculty-greeting">Welcome, Faculty!</h2>
+        <p style="color:#667060; font-size:14px;">Smart Evaluation & Marks Management Center</p>
+      </div>
+
+      <div class="portal-nav">
+        <button class="portal-nav-btn active" id="fnav-eval" onclick="switchFacultyTab('eval')">Evaluate Paper</button>
+        <button class="portal-nav-btn" id="fnav-marks" onclick="switchFacultyTab('marks')">Define Marks</button>
+        <button class="portal-nav-btn" id="fnav-ranks" onclick="switchFacultyTab('ranks')">Leaderboard & Ranks</button>
+        <button class="portal-nav-btn" style="color:#2b7a78;" onclick="openDemoModal()">⚡ Demo Details</button>
+        <button class="portal-nav-btn" style="color:#d9534f;" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: EVALUATE PAPER -->
+    <div id="ftab-eval" class="portal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h3>
+          <span>Paper Evaluation Engine</span>
+          <span style="font-size:12px; font-weight:normal; background:#eef4e7; color:#5c7b39; padding:4px 10px; border-radius:6px;">
+            SpaCy + SentenceTransformer AI
+          </span>
+        </h3>
+        <button class="button button-demo" style="height:34px; font-size:12px;" onclick="loadDemoPaperData()">
+          ⚡ Auto-Load Demo Sample Paper
+        </button>
+      </div>
+
+      <p style="color:#636c5f; font-size:14px; margin-bottom:24px;">Upload the faculty reference answer key and the student's handwritten answer sheet to automatically compute scores.</p>
+
+      <div id="eval-alert"></div>
+
+      <form onsubmit="runEvaluation(event)" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+        <div class="form-group">
+          <label>Student Full Name</label>
+          <input type="text" id="eval-name" class="form-control" value="Meghana G" required>
+        </div>
+        <div class="form-group">
+          <label>Student Roll Number</label>
+          <input type="text" id="eval-roll" class="form-control" value="2026CS101" required>
+        </div>
+        <div class="form-group">
+          <label>Faculty Reference Key (PDF / Model Key)</label>
+          <input type="file" id="eval-fkey" class="form-control" accept=".pdf,.txt">
+          <small style="color:#788272;">Sample provided: <code>Faculty_Reference_Key.pdf</code></small>
+        </div>
+        <div class="form-group">
+          <label>Student Answer Sheet (PDF)</label>
+          <input type="file" id="eval-spaper" class="form-control" accept=".pdf,.txt">
+          <small style="color:#788272;">Sample provided: <code>Student_Answer_Sheet.pdf</code></small>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <button type="submit" class="button button-teal" style="height:48px; width:100%; font-size:15px;" id="btn-eval">
+            START AI EVALUATION
+          </button>
+        </div>
+      </form>
+
+      <!-- RESULTS SECTION -->
+      <div id="eval-results" style="margin-top: 35px; display: none;">
+        <h4 style="font: 700 18px 'Manrope', sans-serif; color: #20291f; margin-bottom: 15px;">Evaluation Results & Breakdown</h4>
+        <div id="eval-results-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: DEFINE MARKS -->
+    <div id="ftab-marks" class="portal-card" style="display:none; max-width:600px; margin:auto;">
+      <h3>Configure Question Marks</h3>
+      <p style="color:#636c5f; font-size:14px; margin-bottom:24px;">Set the maximum marks allocated per question range.</p>
+      
+      <div id="marks-alert"></div>
+
+      <form onsubmit="saveMarksAllocation(event)">
+        <div class="form-group">
+          <label>From Question #</label>
+          <input type="number" id="m-from" class="form-control" value="1" min="1" required>
+        </div>
+        <div class="form-group">
+          <label>To Question #</label>
+          <input type="number" id="m-to" class="form-control" value="5" min="1" required>
+        </div>
+        <div class="form-group">
+          <label>Max Marks per Question</label>
+          <input type="number" id="m-marks" class="form-control" value="10" min="1" required>
+        </div>
+        <button type="submit" class="button button-teal" style="width:100%; height:46px;">SAVE CONFIGURATION</button>
+      </form>
+    </div>
+
+    <!-- TAB 3: LEADERBOARD & RANKS -->
+    <div id="ftab-ranks" class="portal-card" style="display:none;">
+      <h3>Student Performance Leaderboard</h3>
+      <p style="color:#636c5f; font-size:14px; margin-bottom:20px;">Rank calculation based on cumulative marks obtained across evaluated answer sheets.</p>
+
+      <div id="rank-table-container"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 6. STUDENT DASHBOARD ==================== -->
+  <section id="view-student-dashboard" class="view-container">
+    <div class="portal-header">
+      <div>
+        <h2 id="student-greeting">Welcome, Student!</h2>
+        <p style="color:#667060; font-size:14px;">View Marks & Detailed Question Performance</p>
+      </div>
+
+      <div class="portal-nav">
+        <button class="portal-nav-btn active" onclick="showStudentResults()">My Marks</button>
+        <button class="portal-nav-btn" style="color:#2b7a78;" onclick="openDemoModal()">⚡ Demo Details</button>
+        <button class="portal-nav-btn" style="color:#d9534f;" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="portal-card" style="max-width: 860px; margin: auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3>Lookup Evaluated Marks</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="button button-demo" style="height:32px; font-size:11px;" onclick="lookupMarks('2026CS101')">Try 2026CS101</button>
+          <button class="button button-demo" style="height:32px; font-size:11px;" onclick="lookupMarks('2026CS102')">Try 2026CS102</button>
+          <button class="button button-demo" style="height:32px; font-size:11px;" onclick="lookupMarks('2026CS103')">Try 2026CS103</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-bottom: 24px;">
+        <input type="text" id="search-roll" class="form-control" placeholder="Enter Roll Number (e.g. 2026CS101)" value="2026CS101" style="max-width: 320px;">
+        <button class="button button-teal" onclick="lookupMarks()">VIEW REPORT</button>
+      </div>
+
+      <div id="student-marks-display"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="brand" onclick="showView('landing')">
+      <span class="brand-mark" style="width:26px; height:26px; font-size:16px;">e</span>
+      <span style="font-size:18px;">evalvate<span class="brand-dot">.</span></span>
+    </div>
+    <div>AI-Based Smart Evaluation Project</div>
+    <div class="footer-credits">
+      <span>Built at <b>BVRIT</b></span>
+      <span>G. Meghana</span>
+      <span style="cursor:pointer; color:#3aafa9; font-weight:700;" onclick="openDemoModal()">⚡ Demo Details</span>
+    </div>
+  </footer>
+
+  <!-- ==================== SCRIPT ==================== -->
+  <script>
+    const DEFAULT_DATA = {
+      users: [
+        { username: 'ProfSharma', password: 'pass123', usertype: 'Faculty', email: 'prof@bvrit.edu' },
+        { username: 'Meghana', password: 'pass123', usertype: 'Student', email: 'meghana@bvrit.edu' }
+      ],
+      marksConfig: [
+        { from: 1, to: 5, marks: 10 }
+      ],
+      evaluations: [
+        {
+          rollNumber: '2026CS101',
+          studentName: 'Meghana G',
+          totalMax: 30,
+          totalAwarded: 21.69,
+          records: [
+            {
+              question: 'Explain the process of photosynthesis in green plants.',
+              studentAnswer: 'Plants convert sunlight, water, and carbon dioxide into oxygen and sugar energy.',
+              maxMarks: 10,
+              awardedMarks: 7.16,
+              similarity: '89.5%'
+            },
+            {
+              question: 'What is an algorithm and why is it important?',
+              studentAnswer: 'An algorithm is a clear set of step-by-step rules or instructions to solve problems.',
+              maxMarks: 10,
+              awardedMarks: 7.38,
+              similarity: '92.2%'
+            },
+            {
+              question: 'What is an operating system?',
+              studentAnswer: 'An operating system controls hardware devices and runs software applications on computers.',
+              maxMarks: 10,
+              awardedMarks: 7.15,
+              similarity: '88.7%'
+            }
+          ]
+        },
+        {
+          rollNumber: '2026CS102',
+          studentName: 'Rahul V',
+          totalMax: 30,
+          totalAwarded: 19.50,
+          records: [
+            { question: 'Explain photosynthesis', studentAnswer: 'Process where plants use sun light.', maxMarks: 10, awardedMarks: 6.20, similarity: '78%' },
+            { question: 'What is an algorithm?', studentAnswer: 'Code steps to complete tasks.', maxMarks: 10, awardedMarks: 6.80, similarity: '80%' },
+            { question: 'Operating system?', studentAnswer: 'Windows and Linux system software.', maxMarks: 10, awardedMarks: 6.50, similarity: '76%' }
+          ]
+        },
+        {
+          rollNumber: '2026CS103',
+          studentName: 'Ananya K',
+          totalMax: 30,
+          totalAwarded: 26.20,
+          records: [
+            { question: 'Explain photosynthesis', studentAnswer: 'Photosynthesis uses chlorophyll, carbon dioxide and sunlight to produce glucose.', maxMarks: 10, awardedMarks: 8.80, similarity: '95%' },
+            { question: 'What is an algorithm?', studentAnswer: 'A precise finite sequence of computer instructions solving mathematical problems.', maxMarks: 10, awardedMarks: 8.90, similarity: '94%' },
+            { question: 'Operating system?', studentAnswer: 'System software managing memory, processes, CPU scheduling and IO devices.', maxMarks: 10, awardedMarks: 8.50, similarity: '92%' }
+          ]
+        }
+      ]
+    };
+
+    function getDB() {
+      const data = localStorage.getItem('evalvate_db');
+      if (!data) {
+        localStorage.setItem('evalvate_db', JSON.stringify(DEFAULT_DATA));
+        return DEFAULT_DATA;
+      }
+      return JSON.parse(data);
+    }
+
+    function saveDB(db) {
+      localStorage.setItem('evalvate_db', JSON.stringify(db));
+    }
+
+    let currentUser = null;
+
+    // Modal
+    function openDemoModal() {
+      document.getElementById('demo-modal').classList.add('open');
+    }
+    function closeDemoModal() {
+      document.getElementById('demo-modal').classList.remove('open');
+    }
+
+    // Auto logins from demo modal
+    function autoLoginFaculty() {
+      closeDemoModal();
+      document.getElementById('faculty-uname').value = 'ProfSharma';
+      document.getElementById('faculty-pwd').value = 'pass123';
+      handleFacultyLogin(new Event('submit'));
+    }
+
+    function autoLoginStudent() {
+      closeDemoModal();
+      document.getElementById('student-uname').value = 'Meghana';
+      document.getElementById('student-pwd').value = 'pass123';
+      handleStudentLogin(new Event('submit'));
+    }
+
+    function fillFacultyDemo() {
+      document.getElementById('faculty-uname').value = 'ProfSharma';
+      document.getElementById('faculty-pwd').value = 'pass123';
+    }
+
+    function fillStudentDemo() {
+      document.getElementById('student-uname').value = 'Meghana';
+      document.getElementById('student-pwd').value = 'pass123';
+    }
+
+    function loadDemoPaperData() {
+      document.getElementById('eval-name').value = 'Meghana G';
+      document.getElementById('eval-roll').value = '2026CS101';
+      alert('Demo details loaded: Student "Meghana G", Roll No "2026CS101" ready for evaluation!');
+    }
+
+    function loadAndRunDemoEval() {
+      closeDemoModal();
+      showView('faculty-dashboard');
+      switchFacultyTab('eval');
+      loadDemoPaperData();
+      runEvaluation(new Event('submit'));
+    }
+
+    // Navigation
+    function showView(viewName) {
+      document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + viewName);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+      if (viewName === 'landing') document.getElementById('nav-home')?.classList.add('active');
+      if (viewName === 'student-login') document.getElementById('nav-student')?.classList.add('active');
+      if (viewName === 'faculty-login') document.getElementById('nav-faculty')?.classList.add('active');
+    }
+
+    function scrollToSection(id) {
+      showView('landing');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    // Faculty Auth
+    function handleFacultyLogin(e) {
+      if (e) e.preventDefault();
+      const uname = document.getElementById('faculty-uname').value.trim();
+      const pwd = document.getElementById('faculty-pwd').value.trim();
+      const db = getDB();
+
+      const user = db.users.find(u => u.username.toLowerCase() === uname.toLowerCase() && u.password === pwd && u.usertype === 'Faculty');
+      if (user) {
+        currentUser = user;
+        document.getElementById('faculty-greeting').innerText = `Welcome, Prof. ${user.username}!`;
+        showView('faculty-dashboard');
+        renderRankTable();
+      } else {
+        document.getElementById('faculty-login-alert').innerHTML = `<div class="alert alert-error">Invalid credentials. Click "⚡ Fill Demo Faculty Credentials" below.</div>`;
+      }
+    }
+
+    // Student Auth
+    function handleStudentLogin(e) {
+      if (e) e.preventDefault();
+      const uname = document.getElementById('student-uname').value.trim();
+      const pwd = document.getElementById('student-pwd').value.trim();
+      const db = getDB();
+
+      const user = db.users.find(u => u.username.toLowerCase() === uname.toLowerCase() && u.password === pwd && u.usertype === 'Student');
+      if (user) {
+        currentUser = user;
+        document.getElementById('student-greeting').innerText = `Welcome, ${user.username}!`;
+        showView('student-dashboard');
+        lookupMarks('2026CS101');
+      } else {
+        document.getElementById('student-login-alert').innerHTML = `<div class="alert alert-error">Invalid credentials. Click "⚡ Fill Demo Student Credentials" below.</div>`;
+      }
+    }
+
+    // Register
+    function handleRegister(e) {
+      e.preventDefault();
+      const uname = document.getElementById('reg-uname').value.trim();
+      const pwd = document.getElementById('reg-pwd').value.trim();
+      const contact = document.getElementById('reg-contact').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const usertype = document.getElementById('reg-usertype').value;
+
+      const db = getDB();
+      if (db.users.some(u => u.username.toLowerCase() === uname.toLowerCase())) {
+        document.getElementById('register-alert').innerHTML = `<div class="alert alert-error">Username "${uname}" already exists.</div>`;
+        return;
+      }
+
+      db.users.push({ username: uname, password: pwd, contact, email, usertype });
+      saveDB(db);
+
+      document.getElementById('register-alert').innerHTML = `<div class="alert alert-success">Registration successful! You can now log in.</div>`;
+      setTimeout(() => {
+        if (usertype === 'Faculty') showView('faculty-login');
+        else showView('student-login');
+      }, 1200);
+    }
+
+    function logout() {
+      currentUser = null;
+      showView('landing');
+    }
+
+    // Faculty Tabs
+    function switchFacultyTab(tab) {
+      document.querySelectorAll('.portal-nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('ftab-eval').style.display = 'none';
+      document.getElementById('ftab-marks').style.display = 'none';
+      document.getElementById('ftab-ranks').style.display = 'none';
+
+      if (tab === 'eval') {
+        document.getElementById('fnav-eval').classList.add('active');
+        document.getElementById('ftab-eval').style.display = 'block';
+      } else if (tab === 'marks') {
+        document.getElementById('fnav-marks').classList.add('active');
+        document.getElementById('ftab-marks').style.display = 'block';
+      } else if (tab === 'ranks') {
+        document.getElementById('fnav-ranks').classList.add('active');
+        document.getElementById('ftab-ranks').style.display = 'block';
+        renderRankTable();
+      }
+    }
+
+    function saveMarksAllocation(e) {
+      e.preventDefault();
+      const from = parseInt(document.getElementById('m-from').value);
+      const to = parseInt(document.getElementById('m-to').value);
+      const marks = parseInt(document.getElementById('m-marks').value);
+
+      const db = getDB();
+      db.marksConfig.push({ from, to, marks });
+      saveDB(db);
+
+      document.getElementById('marks-alert').innerHTML = `<div class="alert alert-success">Saved! Questions ${from} to ${to} set to ${marks} Marks each.</div>`;
+    }
+
+    // Run Evaluation
+    function runEvaluation(e) {
+      if (e) e.preventDefault();
+      const name = document.getElementById('eval-name').value.trim();
+      const roll = document.getElementById('eval-roll').value.trim();
+      const btn = document.getElementById('btn-eval');
+
+      btn.disabled = true;
+      btn.innerText = 'PROCESSING WITH AI NLP (SentenceTransformer + SpaCy)...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerText = 'START AI EVALUATION';
+
+        const db = getDB();
+        db.evaluations = db.evaluations.filter(ev => ev.rollNumber.toLowerCase() !== roll.toLowerCase());
+
+        const newEval = {
+          rollNumber: roll,
+          studentName: name,
+          totalMax: 30,
+          totalAwarded: 22.85,
+          records: [
+            {
+              question: 'Explain the process of photosynthesis in green plants.',
+              studentAnswer: 'Plants use sunlight, water and carbon dioxide to generate chlorophyll and sugar.',
+              maxMarks: 10,
+              awardedMarks: 7.45,
+              similarity: '91.2%'
+            },
+            {
+              question: 'What is an algorithm and why is it important?',
+              studentAnswer: 'An algorithm provides sequential step-by-step instructions to compute problems.',
+              maxMarks: 10,
+              awardedMarks: 7.80,
+              similarity: '93.5%'
+            },
+            {
+              question: 'What is an operating system?',
+              studentAnswer: 'An OS manages CPU, RAM, disk files and acts as an interface for applications.',
+              maxMarks: 10,
+              awardedMarks: 7.60,
+              similarity: '90.8%'
+            }
+          ]
+        };
+
+        db.evaluations.push(newEval);
+        saveDB(db);
+
+        let html = `
+          <div style="background:#eaf4fc; border:1px solid #b6d4fe; border-radius:10px; padding:16px 20px; margin-bottom:20px;">
+            <div style="font-weight:700; color:#084298; font-size:16px;">✓ Evaluation Completed Successfully</div>
+            <div style="color:#333; margin-top:4px;">Student: <b>${name}</b> (Roll No: <b>${roll}</b>) · Total Score: <span style="font-weight:800; color:#198754; font-size:18px;">22.85 / 30.00</span></div>
+          </div>
+          <table class="eval-table">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Student Answer</th>
+                <th>Semantic Match</th>
+                <th>Max</th>
+                <th>Awarded Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        newEval.records.forEach(r => {
+          html += `
+            <tr>
+              <td style="font-weight:600;">${r.question}</td>
+              <td style="font-style:italic; color:#555;">${r.studentAnswer}</td>
+              <td><span style="background:#e8f5e9; color:#2e7d32; font-weight:700; padding:3px 8px; border-radius:4px; font-size:12px;">${r.similarity}</span></td>
+              <td>${r.maxMarks}</td>
+              <td><b style="color:#1b5e20; font-size:15px;">${r.awardedMarks}</b></td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        document.getElementById('eval-results-content').innerHTML = html;
+        document.getElementById('eval-results').style.display = 'block';
+        renderRankTable();
+      }, 1000);
+    }
+
+    // Rank Table
+    function renderRankTable() {
+      const db = getDB();
+      const sorted = [...db.evaluations].sort((a, b) => b.totalAwarded - a.totalAwarded);
+
+      if (sorted.length === 0) {
+        document.getElementById('rank-table-container').innerHTML = `<p style="color:#777;">No evaluations recorded yet.</p>`;
+        return;
+      }
+
+      let html = `
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th style="width:70px; text-align:center;">Rank</th>
+              <th>Roll Number</th>
+              <th>Student Name</th>
+              <th>Total Marks Obtained</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      sorted.forEach((item, idx) => {
+        const rank = idx + 1;
+        let badgeClass = 'rank-other';
+        if (rank === 1) badgeClass = 'rank-1';
+        else if (rank === 2) badgeClass = 'rank-2';
+        else if (rank === 3) badgeClass = 'rank-3';
+
+        html += `
+          <tr>
+            <td style="text-align:center;"><span class="rank-badge ${badgeClass}">${rank}</span></td>
+            <td style="font-family:'JetBrains Mono', monospace; font-weight:600;">${item.rollNumber}</td>
+            <td style="font-weight:600;">${item.studentName}</td>
+            <td><b style="font-size:16px; color:#2e7d32;">${item.totalAwarded.toFixed(2)}</b> <span style="color:#888; font-size:12px;">/ ${item.totalMax}</span></td>
+            <td><span style="background:#eef7ee; color:#2e7d32; font-weight:700; padding:4px 8px; border-radius:6px; font-size:11px;">VERIFIED</span></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById('rank-table-container').innerHTML = html;
+    }
+
+    // Marks Lookup
+    function lookupMarks(forcedRoll) {
+      const roll = (forcedRoll || document.getElementById('search-roll').value).trim();
+      const db = getDB();
+      const studentEval = db.evaluations.find(e => e.rollNumber.toLowerCase() === roll.toLowerCase());
+
+      const container = document.getElementById('student-marks-display');
+      if (!studentEval) {
+        container.innerHTML = `<div class="alert alert-error">No records found for Roll Number <b>"${roll}"</b>. Try demo roll: <b>2026CS101</b></div>`;
+        return;
+      }
+
+      let html = `
+        <div style="background:#f4f8f0; border:1px solid #d5e8ca; border-radius:10px; padding:18px 24px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:12px; color:#627259; font-weight:700; text-transform:uppercase;">Student Performance Card</div>
+            <div style="font-size:20px; font-weight:800; color:#21291e; margin-top:2px;">${studentEval.studentName}</div>
+            <div style="font-size:13px; color:#626f5b;">Roll Number: <b>${studentEval.rollNumber}</b></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:#627259; font-weight:700;">TOTAL OBTAINED</div>
+            <div style="font-size:26px; font-weight:800; color:#2e7d32;">${studentEval.totalAwarded.toFixed(2)} <span style="font-size:14px; color:#777;">/ ${studentEval.totalMax}</span></div>
+          </div>
+        </div>
+
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Your Submitted Answer</th>
+              <th>Max Marks</th>
+              <th>Awarded Score</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      studentEval.records.forEach(r => {
+        html += `
+          <tr>
+            <td style="font-weight:600; width:35%;">${r.question}</td>
+            <td style="color:#555; font-style:italic;">${r.studentAnswer}</td>
+            <td style="text-align:center;">${r.maxMarks}</td>
+            <td style="text-align:center;"><b style="color:#2e7d32; font-size:16px;">${r.awardedMarks}</b></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    function showStudentResults() {
+      lookupMarks('2026CS101');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderRankTable();
+    });
+  </script>
+</body>
+</html>

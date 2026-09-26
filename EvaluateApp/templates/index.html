@@ -17,8 +17,13 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a href="#how-it-works">How it works</a>
       <a href="#for-schools">For schools</a>
+      <a href="{% url 'Register' %}">Register</a>
     </nav>
-    <div class="nav-actions"><a class="login-link" href="{% url 'StudentLogin' %}">Student login</a><a class="button button-dark button-small" href="{% url 'FacultyLogin' %}">Faculty portal <span aria-hidden="true">↗</span></a></div>
+    <div class="nav-actions">
+      <button onclick="document.getElementById('demo-modal').style.display='flex';" style="background:#edf4e7; color:#405f29; border:1px solid #cce0bd; padding:7px 14px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer;">⚡ Demo Details</button>
+      <a class="login-link" href="{% url 'StudentLogin' %}">Student login</a>
+      <a class="button button-dark button-small" href="{% url 'FacultyLogin' %}">Faculty portal <span aria-hidden="true">↗</span></a>
+    </div>
   </header>
 
   <main>
@@ -26,8 +31,11 @@
       <div class="hero-copy">
         <div class="eyebrow"><span class="eyebrow-dot"></span> A smarter way to see what students know</div>
         <h1>Good work<br>deserves <span>good feedback.</span></h1>
-        <p class="hero-text">Bring handwritten answers into focus. Evalvate helps teachers review work with care and gives every student a clearer picture of their progress.</p>
-        <div class="hero-actions"><a class="button button-dark" href="{% url 'FacultyLogin' %}">Get started <span aria-hidden="true">↗</span></a><a class="text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-actions">
+          <a class="button button-dark" href="{% url 'FacultyLogin' %}">Faculty Portal <span aria-hidden="true">↗</span></a>
+          <a class="button" style="background:#edf4e7; color:#3b5c23; border:1px solid #d2e4bf;" href="{% url 'StudentLogin' %}">Student Login →</a>
+          <button onclick="document.getElementById('demo-modal').style.display='flex';" style="background:#ffffff; border:1px solid #ccd4c4; padding:0 18px; height:48px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer;">⚡ Demo Details</button>
+        </div>
         <div class="school-note"><span class="school-icon">✳</span><span>Made with care at <strong>BVRIT</strong><br><small>Project by G. Meghana</small></span></div>
       </div>
 
@@ -61,6 +69,50 @@
 
     <section class="cta"><div><div class="eyebrow eyebrow-light">Ready when you are</div><h2>Make room for<br>better learning.</h2></div><div class="cta-action"><p>Start with the faculty portal to set up an evaluation, or sign in as a student to see your marks.</p><div><a class="button button-light" href="{% url 'FacultyLogin' %}">Faculty login <span aria-hidden="true">↗</span></a><a class="cta-student" href="{% url 'StudentLogin' %}">Student login →</a></div></div><span class="cta-orbit"></span></section>
   </main>
-  <footer class="footer"><a class="brand" href="{% url 'index' %}"><span class="brand-mark">e</span><span>evalvate<span class="brand-dot">.</span></span></a><span>Thoughtful assessment for every learner.</span><span>© 2026 Krishnaveni Concept School</span></footer>
+  <footer class="footer"><a class="brand" href="{% url 'index' %}"><span class="brand-mark">e</span><span>evalvate<span class="brand-dot">.</span></span></a><span>Thoughtful assessment for every learner.</span><span>© 2026 AI-Based Smart Evaluation System</span></footer>
+
+  <!-- DEMO DETAILS MODAL -->
+  <div id="demo-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this) this.style.display='none';">
+    <div style="background:#ffffff; border-radius:16px; max-width:640px; width:100%; padding:30px; position:relative; box-shadow:0 25px 50px rgba(0,0,0,0.3); font-family:'DM Sans', sans-serif;">
+      <button onclick="document.getElementById('demo-modal').style.display='none';" style="position:absolute; top:18px; right:18px; border:none; background:#eee; width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; font-weight:bold;">×</button>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:22px;">⚡</span>
+        <h2 style="margin:0; font-family:'Manrope', sans-serif; font-size:22px; color:#222;">Demo Details & Test Credentials</h2>
+      </div>
+      <p style="color:#666; font-size:14px; margin-bottom:20px;">Use these pre-configured credentials to explore and test both portals.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+        <div style="background:#f9fbf8; border:1px solid #e1e7dc; border-radius:10px; padding:16px;">
+          <h4 style="margin:0 0 6px; color:#2a3b22;">Faculty Portal</h4>
+          <p style="font-size:12px; color:#666; margin:0 0 10px;">Define marks, evaluate papers, view leaderboards.</p>
+          <div style="font-family:monospace; background:#fff; padding:8px; border-radius:6px; font-size:12px; border:1px solid #ddd; margin-bottom:12px;">
+            Username: <b>ProfSharma</b><br>
+            Password: <b>pass123</b>
+          </div>
+          <a class="button button-dark" style="display:block; text-align:center; height:36px; line-height:36px; padding:0; font-size:12px;" href="{% url 'FacultyLogin' %}">Go to Faculty Portal →</a>
+        </div>
+
+        <div style="background:#f9fbf8; border:1px solid #e1e7dc; border-radius:10px; padding:16px;">
+          <h4 style="margin:0 0 6px; color:#2a3b22;">Student Portal</h4>
+          <p style="font-size:12px; color:#666; margin:0 0 10px;">View question-wise breakdown and awarded scores.</p>
+          <div style="font-family:monospace; background:#fff; padding:8px; border-radius:6px; font-size:12px; border:1px solid #ddd; margin-bottom:12px;">
+            Username: <b>Meghana</b><br>
+            Password: <b>pass123</b><br>
+            Sample Roll: <b>2026CS101</b>
+          </div>
+          <a class="button" style="background:#edf4e7; color:#3b5c23; border:1px solid #d2e4bf; display:block; text-align:center; height:36px; line-height:36px; padding:0; font-size:12px;" href="{% url 'StudentLogin' %}">Go to Student Portal →</a>
+        </div>
+      </div>
+
+      <div style="background:#edf5fd; border:1px solid #b6d4fe; border-radius:10px; padding:14px; font-size:13px; color:#084298;">
+        <b>Included Sample Papers:</b> Found in <code>sample_papers/</code>:
+        <ul style="margin:6px 0 0 18px; padding:0;">
+          <li><code>Faculty_Reference_Key.pdf</code> (Model Answer Key)</li>
+          <li><code>Student_Answer_Sheet.pdf</code> (Student Answers)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

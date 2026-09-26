@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New User Signup — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="DemoDetails.html">Demo Details</a>
+      <a href="StudentLogin.html">Student Login</a>
+      <a href="FacultyLogin.html">Faculty Portal</a>
+      <a href="Register.html" class="active">Register</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoDetailsModal()">⚡ Demo Details</button>
+      <a class="button button-dark" href="FacultyLogin.html">Faculty Portal ↗</a>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="auth-container" style="max-width: 480px;">
+      <h2>NEW USER SIGNUP</h2>
+      
+      <div id="reg-alert"></div>
+
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="uname" class="form-control" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="pwd" class="form-control" placeholder="Create password" required>
+        </div>
+        <div class="form-group">
+          <label>Contact Number</label>
+          <input type="text" id="contact" class="form-control" placeholder="10-digit mobile number" required>
+        </div>
+        <div class="form-group">
+          <label>Email ID</label>
+          <input type="email" id="email" class="form-control" placeholder="name@school.edu" required>
+        </div>
+        <div class="form-group">
+          <label>Address / Campus</label>
+          <input type="text" id="address" class="form-control" placeholder="Campus / Hostel / City" required>
+        </div>
+        <div class="form-group">
+          <label>User Type</label>
+          <select id="usertype" class="form-control" required>
+            <option value="Faculty">Faculty</option>
+            <option value="Student">Student</option>
+          </select>
+        </div>
+
+        <button type="submit" class="auth-button">REGISTER NOW</button>
+
+        <div class="auth-switch">
+          Already registered? <a href="FacultyLogin.html">Sign in here</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+  <script>
+    function handleRegister(e) {
+      e.preventDefault();
+      const u = document.getElementById('uname').value.trim();
+      const p = document.getElementById('pwd').value.trim();
+      const c = document.getElementById('contact').value.trim();
+      const em = document.getElementById('email').value.trim();
+      const ut = document.getElementById('usertype').value;
+
+      const db = getDB();
+      if (db.users.some(usr => usr.username.toLowerCase() === u.toLowerCase())) {
+        document.getElementById('reg-alert').innerHTML = `<div class="alert alert-error">Username "${u}" already exists.</div>`;
+        return;
+      }
+
+      db.users.push({ username: u, password: p, contact: c, email: em, usertype: ut });
+      saveDB(db);
+
+      document.getElementById('reg-alert').innerHTML = `<div class="alert alert-success">Registration successful! Redirecting to login...</div>`;
+      setTimeout(() => {
+        if (ut === 'Faculty') window.location.href = 'FacultyLogin.html';
+        else window.location.href = 'StudentLogin.html';
+      }, 1200);
+    }
+  </script>
+</body>
+</html>

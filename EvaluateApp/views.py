@@ -43,51 +43,28 @@ prompt = """Please analyze this handwritten PDF document. Extract all questions 
             and preserve the meaning, even if spelling is slightly off.
          """
 
-def getStartEnd(lines):
-    start = 0
-    end = 0
-    for i in range(len(lines)):
-        line = lines[i].strip()
-        if line == "{":
-            start = i
-            break
-    j = len(lines)-1
-    print("=="+lines[j])
-    while j >= 0:
-        line = lines[j].strip()
-        print(line)
-        if line == "}":
-            break
-        else:
-            end += 1
-        j -= 1
-    return start, end
-
 def parsePDF(pdf_path, save_path):
-    if os.path.exists(save_path) == False:
+    if not os.path.exists(save_path):
         if not gemini_api_key:
-            raise ValueError("Set the GEMINI_API_KEY environment variable to parse a new PDF.")
+            raise ValueError("GEMINI_API_KEY environment variable is not configured. Please set GEMINI_API_KEY to parse new PDF files with Gemini AI.")
         model = genai.GenerativeModel('gemini-2.5-flash')
         sample_file = genai.upload_file(path=pdf_path, mime_type="application/pdf")
         response = model.generate_content([sample_file, prompt])
         parse_data = response.text.strip()
-        lines = parse_data.split("\n")
-        start, end = getStartEnd(lines)
-        if start != -1 and end != -1:
-            lines = lines[start:-end]
-            lines = "\n".join(lines)
-            lines = lines.strip()
-            with open(save_path, "wb") as file:
-                file.write(lines.encode())
-            file.close()
+        start = parse_data.find("{")
+        end = parse_data.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            lines = parse_data[start:end+1].strip()
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            with open(save_path, "w", encoding="utf-8") as file:
+                file.write(lines)
         else:
-            lines = "data not found"
+            lines = "{}"
     else:
-        with open(save_path, "rb") as file:
-            data = file.read()
-        file.close()
-        lines = data.decode()
+        with open(save_path, "r", encoding="utf-8", errors="ignore") as file:
+            lines = file.read()
     return lines
+
 
 def evaluate_answer(teacher_answer, student_answer, max_marks, weight_keyword=0.4, weight_semantic=0.6):
     """
@@ -155,44 +132,60 @@ def evaluate_answer(teacher_answer, student_answer, max_marks, weight_keyword=0.
     return round(final_score, 2)
 
 def getAnswer(key, student):
-    key = key.replace("Q","A")
-    value = student[key]
-    if type(value) is dict:
-        value = value['answer']
-    return value
+    if not isinstance(student, dict):
+        return ""
+    if key in student:
+        value = student[key]
+    else:
+        alt_key = key.replace("Q", "A") if "Q" in key else key.replace("A", "Q")
+        value = student.get(alt_key, "")
+        if not value:
+            for k, v in student.items():
+                if k.strip().lower() in [key.strip().lower(), alt_key.strip().lower()]:
+                    value = v
+                    break
+    if isinstance(value, dict):
+        value = value.get('answer', '')
+    return str(value) if value is not None else ""
 
 def maxmarks(question_num):
     max_marks = 0
     con = db_connect()
     with con:
         cur = con.cursor()
-        cur.execute("select * FROM max_marks")
+        cur.execute("SELECT from_question, end_question, marks FROM max_marks")
         rows = cur.fetchall()
         for row in rows:
-            from_question = int(str(row[0]))
-            to_question = int(str(row[1]))
-            if question_num >= from_question and question_num <= to_question:
-                max_marks = int(str(row[2]))
-                break        
+            try:
+                from_q = int(str(row[0]))
+                to_q = int(str(row[1]))
+                if from_q <= question_num <= to_q:
+                    max_marks = int(str(row[2]))
+                    break
+            except (ValueError, TypeError):
+                continue
+    if max_marks <= 0:
+        max_marks = 10
     return max_marks
 
 def RankCalculate(request):
     if request.method == 'GET':
         index = 1
-        output='<table border=1 align=center width=100%><tr><th><font size="3" color="black">Rank</th><th><font size="3" color="black">Roll No</th>'
-        output += '<th><font size="3" color="black">Student Name</th><th><font size="3" color="black">Obtained Marks</th></tr>'
+        output = '<table border="1" cellpadding="8" cellspacing="0" align="center" style="width:100%; border-collapse:collapse; margin-top:15px; font-family:inherit;">'
+        output += '<tr style="background:#f0f4f8; text-align:left;"><th>Rank</th><th>Roll No</th><th>Student Name</th><th>Total Marks</th></tr>'
         con = db_connect()
         with con:
             cur = con.cursor()
-            cur.execute("select roll_number, student_name, sum(awarded_marks) as average_marks from evaluation group by roll_number order by average_marks DESC")
+            cur.execute("SELECT roll_number, student_name, ROUND(SUM(CAST(awarded_marks AS REAL)), 2) AS total_marks FROM evaluation GROUP BY roll_number ORDER BY total_marks DESC")
             rows = cur.fetchall()
             for row in rows:
-                output += '<td><font size="3" color="black">'+str(index)+'</td><td><font size="3" color="black">'+str(row[0])+'</td>'
-                output += '<td><font size="3" color="black">'+str(row[1])+'</td><td><font size="3" color="black">'+str(row[2])+'</td></tr>'
-                index+=1
-        output += "</table><br/><br/><br/><br/><br/>"    
-        context= {'data':output}
-        return render(request, 'FacultyScreen.html', context)        
+                output += f'<tr><td align="center"><b>{index}</b></td><td>{row[0]}</td><td>{row[1]}</td><td><b>{row[2]}</b></td></tr>'
+                index += 1
+        output += "</table><br/>"
+        if index == 1:
+            output = "<p style='color:#666; font-size:15px; margin:20px 0;'>No evaluations recorded yet.</p>"
+        context = {'data': output}
+        return render(request, 'FacultyScreen.html', context)
 
 def EvaluatePaper(request):
     if request.method == 'GET':
@@ -204,201 +197,232 @@ def ViewMarks(request):
 
 def ViewMarksAction(request):
     if request.method == 'POST':
-        global username
-        roll_no = request.POST.get('t1', False)
-        output='<table border=1 align=center width=100%><tr><th><font size="3" color="black">Question</th><th><font size="3" color="black">Student Answer</th>'
-        output += '<th><font size="3" color="black">Maximum Marks</th><th><font size="3" color="black">Obtained Marks</th></tr>'
+        roll_no = (request.POST.get('t1') or '').strip()
+        output = '<table border="1" cellpadding="8" cellspacing="0" align="center" style="width:100%; border-collapse:collapse; margin-top:15px; font-family:inherit;">'
+        output += '<tr style="background:#f0f4f8; text-align:left;"><th>Question</th><th>Student Answer</th><th>Max Marks</th><th>Awarded Marks</th></tr>'
         con = db_connect()
+        rows = []
         with con:
             cur = con.cursor()
-            cur.execute("select * from evaluation where roll_number='"+roll_no+"'")
+            cur.execute("SELECT question, student_answer, max_marks, awarded_marks FROM evaluation WHERE roll_number=?", (roll_no,))
             rows = cur.fetchall()
+            total_max = 0.0
+            total_awarded = 0.0
             for row in rows:
-                output += '<td><font size="3" color="black">'+str(row[2])+'</td><td><font size="3" color="black">'+str(row[3])+'</td>'
-                output += '<td><font size="3" color="black">'+str(row[4])+'</td><td><font size="3" color="black">'+str(row[5])+'</td></tr>'
-        output += "</table><br/><br/><br/>"    
-        context= {'data':output}
-        return render(request, 'StudentScreen.html', context)   
-        
+                output += f'<tr><td>{row[0]}</td><td>{row[1]}</td><td align="center">{row[2]}</td><td align="center"><b>{row[3]}</b></td></tr>'
+                try:
+                    total_max += float(row[2])
+                    total_awarded += float(row[3])
+                except (ValueError, TypeError):
+                    pass
+        output += "</table><br/>"
+        if rows:
+            output += f"<div style='margin-top:15px; font-size:16px; color:#0d6efd;'><b>Total Marks:</b> {total_awarded:.2f} / {total_max:.2f}</div>"
+        else:
+            output = f"<p style='color:#dc3545; font-size:15px;'>No evaluated papers found for Roll Number: <b>{roll_no}</b></p>"
+        context = {'data': output}
+        return render(request, 'StudentScreen.html', context)
 
 def EvaluatePaperAction(request):
     if request.method == 'POST':
-        global username
-        student_name = request.POST.get('t1', False)
-        roll_no = request.POST.get('t2', False)
-        faculty_paper = request.FILES['t3'].read()
-        faculty_file = request.FILES['t3'].name
-        student_paper = request.FILES['t4'].read()
-        student_file = request.FILES['t4'].name
-        if os.path.exists("EvaluateApp/static/"+faculty_file):
-            os.remove("EvaluateApp/static/"+faculty_file)
-        with open("EvaluateApp/static/"+faculty_file, "wb") as file:
-            file.write(faculty_paper)
-        file.close()
+        try:
+            student_name = (request.POST.get('t1') or '').strip()
+            roll_no = (request.POST.get('t2') or '').strip()
 
-        if os.path.exists("EvaluateApp/static/"+student_file):
-            os.remove("EvaluateApp/static/"+student_file)
-        with open("EvaluateApp/static/"+student_file, "wb") as file:
-            file.write(student_paper)
-        file.close()
+            if not student_name or not roll_no:
+                return render(request, 'EvaluatePaper.html', {'data': "Student name and roll number are required."})
 
-        lines = parsePDF("EvaluateApp/static/"+faculty_file, "EvaluateApp/static/ParseFiles/"+faculty_file)
-        correct = ast.literal_eval(lines)
+            if 't3' not in request.FILES or 't4' not in request.FILES:
+                return render(request, 'EvaluatePaper.html', {'data': "Please upload both Faculty Paper and Student Paper."})
 
-        lines = parsePDF("EvaluateApp/static/"+student_file, "EvaluateApp/static/ParseFiles/"+student_file)
-        student = ast.literal_eval(lines)
-        db_connection = db_connect()
-        db_cursor = db_connection.cursor()
-        student_sql_query = "delete from evaluation where roll_number='"+roll_no+"'"
-        db_cursor.execute(student_sql_query)
-        db_connection.commit()
-        full_marks = 0
-        obatined_marks = 0
-        index = 1
-        output='<table border=1 align=center width=100%><tr><th><font size="3" color="black">Question</th><th><font size="3" color="black">Student Answer</th>'
-        output += '<th><font size="3" color="black">Maximum Marks</th><th><font size="3" color="black">Obtained Marks</th></tr>'
-        
-        for key, value in correct.items():
-            if type(value) is dict:
-                question = key
-                answer = value['answer']
-                que = value['question']
-            if type(value) is str:
-                question = key
-                answer = value
-            student_answer = getAnswer(question, student)
-            total_marks = maxmarks(index)
-            full_marks = full_marks + total_marks
-            marks = evaluate_answer(answer, student_answer,  total_marks)
-            obatined_marks = obatined_marks + marks
-            print(question+" "+answer+" == "+student_answer+" "+str(index)+" "+str(marks))
-            index += 1
-            student_answer = student_answer.replace("'","")
-            question = question.replace("'","")
-            db_connection = db_connect()
-            db_cursor = db_connection.cursor()
-            student_sql_query = "INSERT INTO evaluation VALUES('"+roll_no+"','"+student_name+"','"+que+"','"+student_answer+"','"+str(total_marks)+"','"+str(marks)+"')"
-            db_cursor.execute(student_sql_query)
-            db_connection.commit()
-            output += '<td><font size="3" color="black">'+que+'</td><td><font size="3" color="black">'+student_answer+'</td>'
-            output += '<td><font size="3" color="black">'+str(total_marks)+'</td><td><font size="3" color="black">'+str(marks)+'</td></tr>'
-        output += "</table><br/><center>"    
-        output += "<font size=3 color=blue>Evaluation Completed<br/>Total marks = "+str(full_marks)+"<br/>Student Obtained Marks = "+str(obatined_marks)+"</font>"        
-        context= {'data':output}
-        return render(request, 'FacultyScreen.html', context)       
+            faculty_file = request.FILES['t3'].name
+            student_file = request.FILES['t4'].name
+
+            os.makedirs("EvaluateApp/static/ParseFiles", exist_ok=True)
+            faculty_path = os.path.join("EvaluateApp", "static", faculty_file)
+            student_path = os.path.join("EvaluateApp", "static", student_file)
+
+            with open(faculty_path, "wb") as f:
+                f.write(request.FILES['t3'].read())
+
+            with open(student_path, "wb") as f:
+                f.write(request.FILES['t4'].read())
+
+            faculty_parse_path = os.path.join("EvaluateApp", "static", "ParseFiles", faculty_file + ".txt")
+            student_parse_path = os.path.join("EvaluateApp", "static", "ParseFiles", student_file + ".txt")
+
+            faculty_text = parsePDF(faculty_path, faculty_parse_path)
+            student_text = parsePDF(student_path, student_parse_path)
+
+            import json
+            def safe_parse_dict(text):
+                try:
+                    return ast.literal_eval(text)
+                except Exception:
+                    pass
+                try:
+                    return json.loads(text)
+                except Exception:
+                    pass
+                start = text.find("{")
+                end = text.rfind("}")
+                if start != -1 and end != -1:
+                    sub = text[start:end+1]
+                    try:
+                        return ast.literal_eval(sub)
+                    except Exception:
+                        return json.loads(sub)
+                raise ValueError("Could not parse extracted questions/answers as dictionary.")
+
+            correct = safe_parse_dict(faculty_text)
+            student = safe_parse_dict(student_text)
+
+            con = db_connect()
+            with con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM evaluation WHERE roll_number=?", (roll_no,))
+
+            full_marks = 0
+            obtained_marks = 0
+            index = 1
+
+            output = '<table border="1" cellpadding="8" cellspacing="0" align="center" style="width:100%; border-collapse:collapse; margin-top:15px; font-family:inherit;">'
+            output += '<tr style="background:#f0f4f8; text-align:left;"><th>Question</th><th>Student Answer</th><th>Max Marks</th><th>Awarded Marks</th></tr>'
+
+            for key, value in correct.items():
+                if isinstance(value, dict):
+                    question_key = key
+                    answer = value.get('answer', '')
+                    que = value.get('question', key)
+                else:
+                    question_key = key
+                    answer = str(value)
+                    que = key
+
+                student_answer = getAnswer(question_key, student)
+                total_marks = maxmarks(index)
+                full_marks += total_marks
+                marks = evaluate_answer(answer, student_answer, total_marks)
+                obtained_marks += marks
+                index += 1
+
+                with con:
+                    cur = con.cursor()
+                    cur.execute(
+                        "INSERT INTO evaluation VALUES (?, ?, ?, ?, ?, ?)",
+                        (roll_no, student_name, que, student_answer, str(total_marks), str(marks))
+                    )
+
+                output += f'<tr><td>{que}</td><td>{student_answer}</td><td align="center">{total_marks}</td><td align="center"><b>{marks}</b></td></tr>'
+
+            output += "</table><br/>"
+            output += f"<div style='background:#e8f4fd; border:1px solid #b6d4fe; border-radius:8px; padding:15px; margin-top:15px; text-align:center;'>"
+            output += f"<h4 style='color:#084298; margin:0 0 8px;'>Evaluation Completed Successfully!</h4>"
+            output += f"<p style='margin:0; font-size:16px;'><b>Student:</b> {student_name} ({roll_no}) | <b>Total Marks:</b> {obtained_marks:.2f} / {full_marks}</p>"
+            output += f"</div>"
+
+            return render(request, 'FacultyScreen.html', {'data': output})
+
+        except Exception as e:
+            error_html = f"<div style='background:#f8d7da; border:1px solid #f5c2c7; border-radius:8px; padding:15px; color:#842029; text-align:center;'><b>Evaluation Error:</b> {str(e)}</div>"
+            return render(request, 'EvaluatePaper.html', {'data': error_html})
 
 def DefineMarksAction(request):
     if request.method == 'POST':
-        from_question = request.POST.get('t1', False)
-        to_question = request.POST.get('t2', False)
-        marks = request.POST.get('t3', False)
-        output = "Error in adding configuration marks to database"
-        db_connection = db_connect()
-        db_cursor = db_connection.cursor()
-        student_sql_query = "delete from max_marks where from_question='"+from_question+"' and end_question='"+to_question+"'"
-        db_cursor.execute(student_sql_query)
-        db_connection.commit()
-        db_connection = db_connect()
-        db_cursor = db_connection.cursor()
-        student_sql_query = "INSERT INTO max_marks VALUES('"+from_question+"','"+to_question+"','"+marks+"')"
-        db_cursor.execute(student_sql_query)
-        db_connection.commit()
-        print(db_cursor.rowcount, "Record Inserted")
-        output = "Marks configuration process completed"
-        context= {'data':"<font size=3 color=blue>"+output+"</font>"}
-        return render(request, 'DefineMarks.html', context)         
+        from_question = (request.POST.get('t1') or '').strip()
+        to_question = (request.POST.get('t2') or '').strip()
+        marks = (request.POST.get('t3') or '').strip()
+
+        try:
+            fq = int(from_question)
+            tq = int(to_question)
+            m = int(marks)
+            con = db_connect()
+            with con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM max_marks WHERE from_question=? AND end_question=?", (fq, tq))
+                cur.execute("INSERT INTO max_marks VALUES (?, ?, ?)", (fq, tq, m))
+            output = f"<span style='color:green;'>Marks configuration saved: Questions {fq} to {tq} = {m} Marks each</span>"
+        except Exception as e:
+            output = f"<span style='color:red;'>Error saving marks: {e}</span>"
+
+        return render(request, 'DefineMarks.html', {'data': output})
 
 def DefineMarks(request):
     if request.method == 'GET':
-       return render(request, 'DefineMarks.html', {})
+        return render(request, 'DefineMarks.html', {})
 
 def index(request):
     if request.method == 'GET':
-       return render(request, 'index.html', {})    
+        return render(request, 'index.html', {})
 
 def StudentLogin(request):
     if request.method == 'GET':
-       return render(request, 'StudentLogin.html', {})
+        return render(request, 'StudentLogin.html', {})
 
 def FacultyLogin(request):
     if request.method == 'GET':
-       return render(request, 'FacultyLogin.html', {})    
+        return render(request, 'FacultyLogin.html', {})
 
 def Register(request):
     if request.method == 'GET':
-       return render(request, 'Register.html', {})
+        return render(request, 'Register.html', {})
 
 def RegisterAction(request):
     if request.method == 'POST':
-        username = request.POST.get('t1', False)
-        password = request.POST.get('t2', False)
-        contact = request.POST.get('t3', False)
-        email = request.POST.get('t4', False)
-        address = request.POST.get('t5', False)
-        usertype = request.POST.get('t6', False)
-        output = "none"
+        username = (request.POST.get('t1') or '').strip()
+        password = (request.POST.get('t2') or '').strip()
+        contact = (request.POST.get('t3') or '').strip()
+        email = (request.POST.get('t4') or '').strip()
+        address = (request.POST.get('t5') or '').strip()
+        usertype = (request.POST.get('t6') or '').strip()
+
+        if not username or not password:
+            return render(request, 'Register.html', {'data': "<span style='color:red;'>Username and password are required.</span>"})
+
         con = db_connect()
         with con:
             cur = con.cursor()
-            cur.execute("select username FROM register")
-            rows = cur.fetchall()
-            for row in rows:
-                if row[0] == username:
-                    output = username+" Username already exists"
-                    break                
-        if output == "none":
-            db_connection = db_connect()
-            db_cursor = db_connection.cursor()
-            student_sql_query = "INSERT INTO register VALUES('"+username+"','"+password+"','"+contact+"','"+email+"','"+address+"','"+usertype+"')"
-            db_cursor.execute(student_sql_query)
-            db_connection.commit()
-            print(db_cursor.rowcount, "Record Inserted")
-            if db_cursor.rowcount == 1:
-                output = "Signup process completed. Login to perform evaluation"
-        context= {'data': output}
-        return render(request, 'Register.html', context) 
+            cur.execute("SELECT username FROM register WHERE username=?", (username,))
+            if cur.fetchone():
+                return render(request, 'Register.html', {'data': f"<span style='color:red;'>Username '{username}' already exists.</span>"})
+
+            cur.execute("INSERT INTO register VALUES (?, ?, ?, ?, ?, ?)", (username, password, contact, email, address, usertype))
+
+        return render(request, 'Register.html', {'data': "<span style='color:green;'>Signup completed successfully! You can now log in.</span>"})
 
 def StudentLoginAction(request):
     if request.method == 'POST':
-        global username
-        username = request.POST.get('t1', False)
-        password = request.POST.get('t2', False)
-        status = "none"
+        uname = (request.POST.get('t1') or '').strip()
+        pword = (request.POST.get('t2') or '').strip()
         con = db_connect()
         with con:
             cur = con.cursor()
-            cur.execute("select username,password FROM register where usertype='Student'")
-            rows = cur.fetchall()
-            for row in rows:
-                if row[0] == username and row[1] == password:
-                    status = "success"
-                    break
-        if status == 'success':
-            context= {'data':"<font size=3 color=blue>"+'Welcome '+username+"</font>"}
-            return render(request, "StudentScreen.html", context)
+            cur.execute("SELECT username FROM register WHERE usertype='Student' AND username=? AND password=?", (uname, pword))
+            row = cur.fetchone()
+        if row:
+            request.session['username'] = uname
+            request.session['usertype'] = 'Student'
+            welcome_msg = f"<div style='text-align:center; padding:20px;'><h3 style='color:#0d6efd;'>Welcome, {uname}!</h3><p style='color:#555;'>Select <b>View Marks</b> above to see your evaluation results.</p></div>"
+            return render(request, "StudentScreen.html", {'data': welcome_msg})
         else:
-            context= {'data':"<font size=3 color=red>Invalid username</font>"}
-            return render(request, 'StudentLogin.html', context)
+            return render(request, 'StudentLogin.html', {'data': "Invalid username or password"})
 
 def FacultyLoginAction(request):
     if request.method == 'POST':
-        global username
-        username = request.POST.get('t1', False)
-        password = request.POST.get('t2', False)
-        status = "none"
+        uname = (request.POST.get('t1') or '').strip()
+        pword = (request.POST.get('t2') or '').strip()
         con = db_connect()
         with con:
             cur = con.cursor()
-            cur.execute("select username,password FROM register where usertype='Faculty'")
-            rows = cur.fetchall()
-            for row in rows:
-                if row[0] == username and row[1] == password:
-                    status = "success"
-                    break
-        if status == 'success':
-            context= {'data':"<font size=3 color=blue>"+'Welcome '+username+"</font>"}
-            return render(request, "FacultyScreen.html", context)
+            cur.execute("SELECT username FROM register WHERE usertype='Faculty' AND username=? AND password=?", (uname, pword))
+            row = cur.fetchone()
+        if row:
+            request.session['username'] = uname
+            request.session['usertype'] = 'Faculty'
+            welcome_msg = f"<div style='text-align:center; padding:20px;'><h3 style='color:#0d6efd;'>Welcome, Faculty {uname}!</h3><p style='color:#555;'>Use the navigation bar above to Define Marks, Evaluate Papers, or View Rank Calculations.</p></div>"
+            return render(request, "FacultyScreen.html", {'data': welcome_msg})
         else:
-            context= {'data':"<font size=3 color=red>Invalid username</font>"}
-            return render(request, 'FacultyLogin.html', context)
+            return render(request, 'FacultyLogin.html', {'data': "Invalid username or password"})
+
 

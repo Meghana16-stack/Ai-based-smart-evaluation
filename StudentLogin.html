@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student Login — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="DemoDetails.html">Demo Details</a>
+      <a href="StudentLogin.html" class="active">Student Login</a>
+      <a href="FacultyLogin.html">Faculty Portal</a>
+      <a href="Register.html">Register</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoDetailsModal()">⚡ Demo Details</button>
+      <a class="button button-dark" href="FacultyLogin.html">Faculty Portal ↗</a>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="auth-container">
+      <h2>STUDENT LOGIN</h2>
+      
+      <div id="login-alert"></div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="uname" class="form-control" placeholder="Enter student username" value="Meghana" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="pwd" class="form-control" placeholder="Enter password" value="pass123" required>
+        </div>
+
+        <button type="submit" class="auth-button">LOGIN TO STUDENT PORTAL</button>
+
+        <button type="button" class="demo-autofill-btn" onclick="fillDemo()">
+          ⚡ Auto-Fill Demo Credentials (Meghana / pass123)
+        </button>
+
+        <div class="auth-switch">
+          New student? <a href="Register.html">Register</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+  <script>
+    function fillDemo() {
+      document.getElementById('uname').value = 'Meghana';
+      document.getElementById('pwd').value = 'pass123';
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('uname').value.trim();
+      const p = document.getElementById('pwd').value.trim();
+      const db = getDB();
+
+      const found = db.users.find(usr => usr.username.toLowerCase() === u.toLowerCase() && usr.password === p && usr.usertype === 'Student');
+      if (found) {
+        localStorage.setItem('evalvate_current_user', JSON.stringify(found));
+        window.location.href = 'StudentScreen.html';
+      } else {
+        document.getElementById('login-alert').innerHTML = `<div class="alert alert-error">Invalid credentials. Click "⚡ Auto-Fill Demo Credentials" to test.</div>`;
+      }
+    }
+  </script>
+</body>
+</html>

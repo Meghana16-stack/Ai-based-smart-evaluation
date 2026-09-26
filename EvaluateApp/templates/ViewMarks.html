@@ -165,7 +165,11 @@ body{
     {% endif %}
 
     <label>Your Roll Number:</label>
-    <input type="text" name="t1" placeholder="Enter your roll number">
+    <input type="text" name="t1" placeholder="Enter your roll number" value="2026CS101">
+
+    <div style="margin-top:10px; display:flex; gap:8px;">
+        <button type="button" onclick="document.getElementsByName('t1')[0].value='2026CS101';" style="background:#edf4e7; color:#3b5c23; border:1px solid #d2e4bf; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">⚡ Demo Roll: 2026CS101</button>
+    </div>
 
     <button type="submit">VIEW MARKS</button>
 </div>

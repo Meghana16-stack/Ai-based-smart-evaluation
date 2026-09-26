@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Define Marks — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="DefineMarks.html" class="active">Define Marks</a>
+      <a href="EvaluatePaper.html">Evaluate Answers</a>
+      <a href="FacultyScreen.html">Rank Calculation</a>
+      <a href="DemoDetails.html">Demo Details</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoDetailsModal()">⚡ Demo Details</button>
+      <a class="button button-outline" href="index.html">Logout</a>
+    </div>
+  </header>
+
+  <div class="portal-wrapper">
+    <div class="portal-header">
+      <div>
+        <h2>Marks Configuration</h2>
+        <p style="color:#667060; font-size:14px; margin-top:2px;">Set question range and maximum marks criteria for examination papers.</p>
+      </div>
+      <div class="portal-nav">
+        <a href="DefineMarks.html" class="active">Define Marks</a>
+        <a href="EvaluatePaper.html">Evaluate Answers</a>
+        <a href="FacultyScreen.html">Leaderboard & Ranks</a>
+        <a href="index.html" style="color:#cf222e;">Logout</a>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:26px;">
+      <!-- FORM -->
+      <div class="portal-card">
+        <h3>Allocate Question Marks</h3>
+        <div id="marks-alert"></div>
+
+        <form onsubmit="handleSaveMarks(event)">
+          <div class="form-group">
+            <label>From Question #</label>
+            <input type="number" id="m-from" class="form-control" value="1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>To Question #</label>
+            <input type="number" id="m-to" class="form-control" value="5" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Maximum Marks per Question</label>
+            <input type="number" id="m-marks" class="form-control" value="10" min="1" required>
+          </div>
+
+          <button type="submit" class="button button-teal" style="width:100%; height:46px; margin-top:10px;">
+            SAVE CONFIGURATION
+          </button>
+        </form>
+      </div>
+
+      <!-- ACTIVE ALLOCATIONS -->
+      <div class="portal-card">
+        <h3>Active Marks Allocations</h3>
+        <p style="color:#666; font-size:13px; margin-bottom:14px;">The AI evaluation engine uses these weights during scoring:</p>
+
+        <div id="allocations-table"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System | Krishnaveni Concept School</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+  <script>
+    function renderAllocations() {
+      const db = getDB();
+      let html = `
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th>From Question</th>
+              <th>To Question</th>
+              <th>Max Marks Each</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      (db.marksConfig || []).forEach(m => {
+        html += `
+          <tr>
+            <td>Question ${m.from}</td>
+            <td>Question ${m.to}</td>
+            <td><b style="color:#2e7d32;">${m.marks} Marks</b></td>
+          </tr>
+        `;
+      });
+      html += `</tbody></table>`;
+      document.getElementById('allocations-table').innerHTML = html;
+    }
+
+    function handleSaveMarks(e) {
+      e.preventDefault();
+      const f = parseInt(document.getElementById('m-from').value);
+      const t = parseInt(document.getElementById('m-to').value);
+      const m = parseInt(document.getElementById('m-marks').value);
+
+      const db = getDB();
+      db.marksConfig = (db.marksConfig || []).filter(item => !(item.from === f && item.to === t));
+      db.marksConfig.push({ from: f, to: t, marks: m });
+      saveDB(db);
+
+      document.getElementById('marks-alert').innerHTML = `<div class="alert alert-success">Configuration saved! Questions ${f} to ${t} set to ${m} marks each.</div>`;
+      renderAllocations();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderAllocations);
+  </script>
+</body>
+</html>

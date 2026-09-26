@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>View Marks — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="ViewMarks.html" class="active">View Marks</a>
+      <a href="StudentScreen.html">Student Dashboard</a>
+      <a href="DemoDetails.html">Demo Details</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="button button-demo" onclick="openDemoDetailsModal()">⚡ Demo Details</button>
+      <a class="button button-outline" href="index.html">Logout</a>
+    </div>
+  </header>
+
+  <div class="portal-wrapper">
+    <div class="portal-header">
+      <div>
+        <h2>Candidate Scorecard</h2>
+        <p style="color:#667060; font-size:14px; margin-top:2px;">Look up evaluated marks and question-by-question breakdown.</p>
+      </div>
+      <div class="portal-nav">
+        <a href="ViewMarks.html" class="active">View Marks</a>
+        <a href="StudentScreen.html">Student Dashboard</a>
+        <a href="index.html" style="color:#cf222e;">Logout</a>
+      </div>
+    </div>
+
+    <div class="portal-card" style="max-width:880px; margin:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+        <h3>Lookup Student Performance</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="button button-demo" style="height:32px; font-size:11px;" onclick="searchRoll('2026CS101')">⚡ Demo: 2026CS101</button>
+          <button class="button button-demo" style="height:32px; font-size:11px;" onclick="searchRoll('2026CS102')">⚡ Demo: 2026CS102</button>
+          <button class="button button-demo" style="height:32px; font-size:11px;" onclick="searchRoll('2026CS103')">⚡ Demo: 2026CS103</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-bottom:24px;">
+        <input type="text" id="roll-input" class="form-control" placeholder="Enter Roll Number" value="2026CS101" style="max-width:320px;">
+        <button class="button button-teal" onclick="searchRoll()">VIEW REPORT</button>
+      </div>
+
+      <div id="marks-display-area"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System | Krishnaveni Concept School</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+  <script>
+    function searchRoll(forced) {
+      const roll = (forced || document.getElementById('roll-input').value).trim();
+      document.getElementById('roll-input').value = roll;
+      const db = getDB();
+
+      const found = db.evaluations.find(e => e.rollNumber.toLowerCase() === roll.toLowerCase());
+      const area = document.getElementById('marks-display-area');
+
+      if (!found) {
+        area.innerHTML = `<div class="alert alert-error">No records found for Roll Number "${roll}". Please verify or try demo roll <b>2026CS101</b>.</div>`;
+        return;
+      }
+
+      let html = `
+        <div style="background:#f4f8f0; border:1px solid #d5e8ca; border-radius:12px; padding:20px 24px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <span style="font-size:11px; font-weight:bold; color:#5c783e; background:#e7f0dc; padding:3px 8px; border-radius:4px;">VERIFIED REPORT</span>
+            <h3 style="margin:8px 0 2px; font-size:22px; color:#21291e;">${found.studentName}</h3>
+            <div style="color:#626f5b; font-size:13px;">Roll Number: <b>${found.rollNumber}</b></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:#627259; font-weight:700;">TOTAL OBTAINED</div>
+            <div style="font-size:28px; font-weight:800; color:#2e7d32;">${found.totalAwarded.toFixed(2)} <span style="font-size:14px; color:#777;">/ ${found.totalMax}</span></div>
+          </div>
+        </div>
+
+        <table class="eval-table">
+          <thead>
+            <tr>
+              <th style="width:35%;">Question</th>
+              <th>Student Answer</th>
+              <th style="text-align:center;">Max Marks</th>
+              <th style="text-align:center;">Awarded</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      found.records.forEach(r => {
+        html += `
+          <tr>
+            <td style="font-weight:600;">${r.question}</td>
+            <td style="color:#555; font-style:italic;">${r.studentAnswer}</td>
+            <td style="text-align:center;">${r.maxMarks}</td>
+            <td style="text-align:center;"><b style="color:#2e7d32; font-size:16px;">${r.awardedMarks}</b></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      area.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const r = urlParams.get('roll');
+      searchRoll(r || '2026CS101');
+    });
+  </script>
+</body>
+</html>
