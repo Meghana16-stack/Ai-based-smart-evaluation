@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Evaluation System</title>
+
+    <script>
+        function validate(formObj){
+            if(formObj.t1.value.length==0){
+                alert("Please enter username");
+                formObj.t1.focus(); return false;
+            }
+            if(formObj.t2.value.length==0){
+                alert("Please enter password");
+                formObj.t2.focus(); return false;
+            }
+            if(formObj.t3.value.length==0 || isNaN(formObj.t3.value)){
+                alert("Please enter valid contact number");
+                formObj.t3.focus(); return false;
+            }
+            if(formObj.t4.value.length==0){
+                alert("Please enter email");
+                formObj.t4.focus(); return false;
+            }
+            var filter = /^([a-zA-Z0-9_\.\-])+\@([a-z]+\.)+(com)$/;
+            if (!filter.test(formObj.t4.value)) {
+                alert("Invalid email format");
+                formObj.t4.focus(); return false;
+            }
+            if(formObj.t5.value.length==0){
+                alert("Please enter address");
+                formObj.t5.focus(); return false;
+            }
+            return true;
+        }
+    </script>
+
+    <style>
+        body{
+            margin:0;
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            background:#f4f6f8;
+            font-family:Arial, sans-serif;
+        }
+
+        /* HEADER */
+        .header{
+            background:white;
+            padding:20px;
+            border-bottom:1px solid #ddd;
+            text-align:center;
+        }
+        .header h1{
+            margin:0;
+            color:#0d6efd;
+        }
+
+        /* NAVBAR */
+        .menu_nav{
+            background:#ffffff;
+            border-bottom:1px solid #ccc;
+            box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        }
+        .menu_nav ul{
+            list-style:none;
+            margin:0;
+            padding:14px 0;
+            display:flex;
+            justify-content:center;
+            gap:60px;
+        }
+        .menu_nav ul li a{
+            text-decoration:none;
+            color:black;
+            font-weight:bold;
+        }
+        .menu_nav ul li a:hover{
+            text-decoration:underline;
+        }
+
+        /* CONTENT */
+        .content{
+            flex:1;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        /* CARD */
+        .card{
+            width:450px;
+            background:#0b1f1f;
+			
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 15px 40px rgba(0,0,0,0.15);
+        }
+        .card h3{
+			color:#ffffff;
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        .card label{
+			color:black;
+            font-weight:bold;
+            display:block;
+            margin-top:10px;
+        }
+
+        .card input, .card select{
+            width:95%;
+            height:40px;
+            margin-top:5px;
+            padding:8px;
+            border-radius:6px;
+            border:1px solid #ccc;
+        }
+
+        .card input:focus, .card select:focus{
+            outline:none;
+            border-color:#3aafa9;
+            box-shadow:0 0 6px rgba(58,175,169,0.6);
+        }
+
+        .card button{
+            margin-top:20px;
+            width:100%;
+            height:45px;
+            background:#3aafa9;
+            border:none;
+            color:white;
+            font-weight:bold;
+            border-radius:6px;
+            cursor:pointer;
+        }
+        .card button:hover{
+            background:#2b7a78;
+        }
+
+        /* FOOTER */
+        .footer{
+            background:#0d6efd;
+            color:white;
+            text-align:center;
+            padding:10px;
+            font-size:13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>AI-Based Smart Evaluation System</h1>
+</div>
+
+<!-- NAVBAR -->
+<div style="font-size:20px;" class="menu_nav">
+    <ul>
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'FacultyLogin' %}">Faculty Login</a></li>
+        <li><a href="{% url 'StudentLogin' %}">Student Login</a></li>
+        <li><a href="{% url 'Register' %}">New User Signup</a></li>
+    </ul>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+<form method="post" action="{% url 'RegisterAction' %}" onsubmit="return validate(this);">
+{% csrf_token %}
+
+<div class="card">
+    <h3>NEW USER SIGNUP</h3>
+
+    {% if data %}
+        <p style="color:red;text-align:center;">{{ data }}</p>
+    {% endif %}
+
+    <label style="color:white;">Username:</label>
+    <input type="text" name="t1" placeholder="Enter your name">
+
+    <label style="color:white;">Password:</label>
+    <input type="password" name="t2" placeholder="Enter any password">
+
+    <label style="color:white;">Contact Number:</label>
+    <input type="text" name="t3" placeholder="Enter your mobile number">
+
+    <label style="color:white;">Email ID:</label>
+    <input type="text" name="t4" placeholder="Enter your Email id">
+
+    <label style="color:white;">Address:</label>
+    <input type="text" name="t5" placeholder="Enter your Address">
+
+    <label style="color:white;">User Type:</label>
+    <select name="t6" style="width: 100%; height: 46px;">
+	    <option >select user type</option>
+        <option value="Faculty">Faculty</option>
+        <option value="Student">Student</option>
+    </select>
+
+    <button type="submit">REGISTER</button>
+</div>
+</form>
+</div>
+
+<!-- FOOTER -->
+<div style="margin:0; font-size:20px;" class="footer">
+    © 2026 AI-Based Smart Evaluation System | Krishnaveni Concept School
+</div>
+
+</body>
+</html>

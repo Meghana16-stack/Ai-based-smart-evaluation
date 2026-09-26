@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Evaluation System</title>
+<meta charset="utf-8">
+
+<style>
+html, body{
+    height:100%;
+    margin:0;
+    background:#ffffff;
+    font-family:Arial, sans-serif;
+}
+
+/* PAGE WRAPPER */
+.page{
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER */
+.header{
+    text-align:center;
+    padding:20px 0;
+    border-bottom:1px solid #ddd;
+}
+.header h1{
+    margin:0;
+    color:#0d6efd;
+    font-size:34px;
+}
+
+/* NAVBAR */
+.navbar{
+    position:sticky;
+    top:0;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    background:#ffffff;
+    border-bottom:1px solid #ccc;
+    z-index:1000;
+}
+.navbar ul{
+    list-style:none;
+    margin:0;
+    padding:14px 0;
+    display:flex;
+    justify-content:center;
+    gap:90px;
+}
+.navbar ul li a{
+    text-decoration:none;
+    font-size:20px;
+    font-weight:600;
+    color:#000;
+}
+.navbar ul li a:hover{
+    color:#0d6efd;
+}
+
+/* CONTENT */
+.content{
+    flex:1;
+    padding:60px 20px;
+    display:flex;
+    justify-content:center;
+}
+
+/* CARD */
+.card{
+    background:#ffffff;
+    width:80%;
+    max-width:900px;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    text-align:center;
+}
+.card img{
+    max-width:100%;
+    margin-top:25px;
+    border-radius:8px;
+}
+
+/* FOOTER */
+.footer{
+    background:#0d6efd;
+    color:#fff;
+    padding:12px 20px;
+    font-size:14px;
+    text-align:left;   /* one side */
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>AI-Based Smart Evaluation System</h1>
+    </div>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <ul>
+            <li><a href="{% url 'DefineMarks' %}">Define Marks</a></li>
+            <li><a href="{% url 'EvaluatePaper' %}">Evaluate Answers</a></li>
+            <li><a href="{% url 'RankCalculate' %}">Rank Calculation</a></li>
+            <li><a href="{% url 'index' %}">Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <div class="card">
+            <div style="color:#333; font-size:16px;">
+                {{ data|safe }}
+            </div>
+
+            {% if img %}
+                <img src="data:image/png;base64, {{ img }}" alt="Result">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="margin:0; font-size:20px;text-align:center;" class="footer">
+        © 2026 AI-Based Smart Evaluation System | Krishnaveni Concept School
+    </div>
+
+</div>
+</body>
+</html>
+

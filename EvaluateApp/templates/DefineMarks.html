@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI-Based Smart Evaluation System</title>
+<meta charset="utf-8">
+
+<script>
+function validate(formObj){
+    if(formObj.t1.value.length==0){
+        alert("Please Enter From Question");
+        formObj.t1.focus();
+        return false;
+    }
+    if(formObj.t2.value.length==0){
+        alert("Please Enter End Question");
+        formObj.t2.focus();
+        return false;
+    }
+    if(formObj.t3.value.length==0){
+        alert("Please Enter Maximum Marks");
+        formObj.t3.focus();
+        return false;
+    }
+    return true;
+}
+</script>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:#f4f6f8;
+    font-family:Arial, sans-serif;
+}
+
+/* HEADER */
+.header{
+	text-align: center;
+	
+	padding:20px 0;
+    background:white;
+    
+    color:#0d6efd;
+}
+.header h1{
+    margin:0;
+    font-size:32px;
+}
+.header span{
+    float:right;
+    font-size:14px;
+    margin-top:6px;
+}
+
+/* NAVBAR */
+.menu_nav{
+    position:sticky;
+    top:0;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    background:#ffffff;
+    border-bottom:1px solid #ccc;
+    z-index:1000;
+}
+.menu_nav ul{
+    list-style:none;
+    margin:0;
+    padding:14px 0;
+    display:flex;
+    justify-content:center;
+    gap:90px;
+}
+.menu_nav ul li a{
+    color:black;
+    text-decoration:none;
+    font-weight:bold;
+	font-size:20px;
+}
+.menu_nav ul li a:hover{
+    text-decoration:underline;
+}
+
+/* MAIN CONTENT */
+.content{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* MARKS CARD */
+.box{
+    width:420px;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+
+.box h3{
+    text-align:center;
+    margin-top:0;
+    letter-spacing:2px;
+    color:#0b1f1f;
+}
+
+/* TABLE */
+.box table{
+    width:100%;
+    margin-top:20px;
+}
+
+/* INPUTS */
+.box input[type="number"]{
+    width:96%;
+    height:40px;
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:14px;
+    transition:0.3s;
+}
+.box input[type="number"]:focus{
+    border-color:#3aafa9;
+    box-shadow:0 0 6px rgba(58,175,169,0.6);
+    outline:none;
+}
+
+/* BUTTON */
+.box input[type="submit"]{
+    width:100%;
+    height:42px;
+    background:#3aafa9;
+    border:none;
+    border-radius:6px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+    transition:0.3s;
+}
+.box input[type="submit"]:hover{
+    background:#2b7a78;
+    color:white;
+}
+
+/* FOOTER */
+.footer{
+    background:#0d6efd;
+    color:white;
+    text-align:center;
+    padding:10px;
+    font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>AI-Based Smart Evaluation System
+        
+    </h1>
+</div>
+
+<!-- NAVBAR -->
+<div class="menu_nav">
+    <ul>
+        <li><a href="{% url 'DefineMarks' %}">Define Marks</a></li>
+        <li><a href="{% url 'EvaluatePaper' %}">Evaluate Answers</a></li>
+        <li><a href="{% url 'RankCalculate' %}">Rank Calculation</a></li>
+        <li><a href="{% url 'index' %}">Logout</a></li>
+    </ul>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<form method="post" action="{% url 'DefineMarksAction' %}" onsubmit="return validate(this);">
+{% csrf_token %}
+
+<div class="box">
+    <h3>MARKS ALLOCATION</h3>
+
+    {% if data %}
+        <p style="color:red;text-align:center;">{{ data|safe }}</p>
+    {% endif %}
+
+    <table>
+        <tr>
+            <td><b>From Question:</b></td>
+        </tr>
+        <tr>
+            <td><input type="number" name="t1"></td>
+        </tr>
+
+        <tr>
+            <td><b>End Question:</b></td>
+        </tr>
+        <tr>
+            <td><input type="number" name="t2"></td>
+        </tr>
+
+        <tr>
+            <td><b>Maximum Marks:</b></td>
+        </tr>
+        <tr>
+            <td><input type="number" name="t3"></td>
+        </tr>
+
+        <tr>
+            <td>
+                <input type="submit" value="SAVE MARKS">
+            </td>
+        </tr>
+    </table>
+</div>
+
+</form>
+</div>
+
+<!-- FOOTER -->
+<div style="margin:0; font-size:20px;" class="footer">
+    © 2026 AI-Based Smart Evaluation System | Krishnaveni Concept School
+</div>
+
+</body>
+</html>

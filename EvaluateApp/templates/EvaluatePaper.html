@@ -1,0 +1,219 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI-Based smart Evaluation System</title>
+    <meta charset="utf-8">
+
+    <script>
+        function validate(formObj){
+            if(formObj.t1.value.length==0){
+                alert("Please enter student name");
+                formObj.t1.focus();
+                return false;
+            }
+            if(formObj.t2.value.length==0){
+                alert("Please enter roll no");
+                formObj.t2.focus();
+                return false;
+            }
+            if(formObj.t3.value.length==0){
+                alert("Please upload faculty paper");
+                return false;
+            }
+            if(formObj.t4.value.length==0){
+                alert("Please upload student paper");
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+    <style>
+        body{
+            margin:0;
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            background:#f4f6f8;
+            font-family:Arial, sans-serif;
+        }
+
+        /* HEADER */
+        .header{
+            background:white;
+            padding:20px 0;
+            color:#0d6efd;
+            border-bottom:1px solid #ddd;
+        }
+        .header h1{
+            text-align:center;
+            margin:0;
+            font-size:32px;
+        }
+        .header span{
+            float:right;
+            font-size:14px;
+            margin-right:30px;
+            margin-top:6px;
+        }
+
+        /* NAVBAR */
+        .menu_nav{
+            position:sticky;
+            top:0;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            background:#ffffff;
+            border-bottom:1px solid #ccc;
+            z-index:1000;
+        }
+        .menu_nav ul{
+            list-style:none;
+            margin:0;
+            padding:14px 0;
+            display:flex;
+            justify-content:center;
+            gap:90px;
+        }
+        .menu_nav ul li a{
+            color:black;
+            text-decoration:none;
+            font-weight:bold;
+			font-size:20px;
+        }
+        .menu_nav ul li a:hover{
+            text-decoration:underline;
+        }
+
+        /* CONTENT */
+        .content{
+            flex:1;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:20px;
+        }
+
+        /* BOX */
+        .box{
+            width:460px;
+            background:white;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 15px 40px rgba(0,0,0,0.2);
+        }
+        .box h3{
+            text-align:center;
+            margin-top:0;
+            letter-spacing:2px;
+            color:#0b1f1f;
+        }
+
+        /* INPUTS */
+        .box input[type="text"],
+        .box input[type="file"]{
+            width:95%;
+            height:40px;
+            padding:8px;
+            margin-bottom:15px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            font-size:14px;
+        }
+        .box input:focus{
+            border-color:#3aafa9;
+            box-shadow:0 0 6px rgba(58,175,169,0.6);
+            outline:none;
+        }
+
+        /* BUTTON */
+        .box input[type="submit"]{
+            width:100%;
+            height:45px;
+            background:#3aafa9;
+            border:none;
+            border-radius:6px;
+            font-size:15px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+        .box input[type="submit"]:hover{
+            background:#2b7a78;
+            color:white;
+        }
+
+        /* FOOTER */
+        .footer{
+            background:#0d6efd;
+            color:white;
+            text-align:center;
+            padding:10px;
+            font-size:13px;
+            margin-top:auto;   /* ⭐ KEY LINE FOR STICKY FOOTER */
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>AI-Based Smart Evaluation System</h1>
+</div>
+
+<!-- NAVBAR -->
+<div class="menu_nav">
+    <ul>
+        <li><a href="{% url 'DefineMarks' %}">Define Marks</a></li>
+        <li><a href="{% url 'EvaluatePaper' %}">Evaluate Answers</a></li>
+        <li><a href="{% url 'RankCalculate' %}">Rank Calculation</a></li>
+        <li><a href="{% url 'index' %}">Logout</a></li>
+    </ul>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+    <form method="post" action="{% url 'EvaluatePaperAction' %}" enctype="multipart/form-data" onsubmit="return validate(this);">
+        {% csrf_token %}
+        <div class="box">
+            <h3>PAPER EVALUATION</h3>
+
+            {% if data %}
+                <p style="color:red;text-align:center;">{{ data }}</p>
+            {% endif %}
+
+            <label><b>Student Name:</b></label>
+            <input type="text" name="t1">
+
+            <label><b>Roll Number:</b></label>
+            <input type="text" name="t2">
+
+            <label><b>Faculty Paper (PDF):</b></label>
+            <input type="file" name="t3" accept="application/pdf">
+
+            <label><b>Student Paper (PDF):</b></label>
+            <input type="file" name="t4" accept="application/pdf">
+
+            <input type="submit" value="EVALUATE PAPER">
+        </div>
+    </form>
+</div>
+
+<!-- FOOTER -->
+<div style="margin:0; font-size:20px;" class="footer">
+    © 2026 AI-Based Smart Evaluation System | Krishnaveni Concept School
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+

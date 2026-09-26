@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI-Based Evaluation System</title>
+
+<script>
+function validate(formObj){
+    if(formObj.t1.value.length == 0){
+        alert("Please enter roll number");
+        formObj.t1.focus();
+        return false;
+    }
+    return true;
+}
+</script>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    font-family:Arial, sans-serif;
+    background:#f4f6f8;
+}
+
+/* HEADER */
+.header{
+    background:white;
+    padding:20px 0;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+.header h1{
+    margin:0;
+    color:#0d6efd;
+    font-size:32px;
+}
+
+/* NAVBAR */
+.menu_nav{
+    background:#ffffff;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    border-bottom:1px solid #ccc;
+}
+.menu_nav ul{
+    list-style:none;
+    margin:0;
+    padding:14px 0;
+    display:flex;
+    justify-content:center;
+    gap:80px;
+}
+.menu_nav ul li a{
+    text-decoration:none;
+    color:black;
+    font-weight:bold;
+    font-size:20px;
+}
+.menu_nav ul li a:hover{
+    text-decoration:underline;
+}
+
+/* CONTENT */
+.content{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+}
+
+/* CARD */
+.card{
+    width:450px;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+
+.card h3{
+    text-align:center;
+    margin-top:0;
+    margin-bottom:20px;
+    color:#0b1f1f;
+    letter-spacing:1px;
+}
+
+.card label{
+    font-weight:bold;
+    display:block;
+    margin-top:10px;
+}
+
+.card input[type="text"]{
+    width:96%;
+    height:40px;
+    padding:8px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+.card input:focus{
+    outline:none;
+    border-color:#3aafa9;
+    box-shadow:0 0 6px rgba(58,175,169,0.6);
+}
+
+.card button{
+    width:100%;
+    height:45px;
+    margin-top:20px;
+    background:#3aafa9;
+    border:none;
+    border-radius:6px;
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+}
+.card button:hover{
+    background:#2b7a78;
+}
+
+/* FOOTER */
+.footer{
+    background:#0d6efd;
+    color:white;
+    text-align:center;
+    padding:10px;
+    font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>AI-Based Evaluation System</h1>
+</div>
+
+<!-- NAVBAR -->
+<div class="menu_nav">
+    <ul>
+        <li><a href="{% url 'ViewMarks' %}">View Marks</a></li>
+        <li><a href="{% url 'index' %}">Logout</a></li>
+    </ul>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+<form method="post" action="{% url 'ViewMarksAction' %}" onsubmit="return validate(this);">
+{% csrf_token %}
+
+<div class="card">
+    <h3>View Marks</h3>
+
+    {% if data %}
+        <p style="color:red; text-align:center;">{{ data|safe }}</p>
+    {% endif %}
+
+    <label>Your Roll Number:</label>
+    <input type="text" name="t1" placeholder="Enter your roll number">
+
+    <button type="submit">VIEW MARKS</button>
+</div>
+
+</form>
+</div>
+
+<!-- FOOTER -->
+<div style="margin:0; font-size:20px;" class="footer">
+    © 2026 AI-Based Smart Evaluation System | Krishnaveni Concept School
+</div>
+
+</body>
+</html>

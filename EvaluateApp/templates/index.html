@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f4">
+  <title>Evalvate — Thoughtful assessment, made lighter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'home.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'index' %}" aria-label="Evalvate home"><span class="brand-mark">e</span><span>evalvate<span class="brand-dot">.</span></span></a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="#for-schools">For schools</a>
+    </nav>
+    <div class="nav-actions"><a class="login-link" href="{% url 'StudentLogin' %}">Student login</a><a class="button button-dark button-small" href="{% url 'FacultyLogin' %}">Faculty portal <span aria-hidden="true">↗</span></a></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> A smarter way to see what students know</div>
+        <h1>Good work<br>deserves <span>good feedback.</span></h1>
+        <p class="hero-text">Bring handwritten answers into focus. Evalvate helps teachers review work with care and gives every student a clearer picture of their progress.</p>
+        <div class="hero-actions"><a class="button button-dark" href="{% url 'FacultyLogin' %}">Get started <span aria-hidden="true">↗</span></a><a class="text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a></div>
+        <div class="school-note"><span class="school-icon">✳</span><span>Made with care at <strong>BVRIT</strong><br><small>Project by G. Meghana</small></span></div>
+      </div>
+
+      <div class="hero-art" aria-label="An illustration of a paper being thoughtfully evaluated">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="spark spark-one">✳</div><div class="spark spark-two">✦</div><div class="spark spark-three">·</div>
+        <div class="float-tag tag-ai"><span class="tag-icon">✳</span> AI assisted</div>
+        <div class="float-tag tag-score"><span class="score-check">✓</span><span><b>Thoughtful scoring</b><small>Answers reviewed for meaning</small></span></div>
+        <div class="paper-card">
+          <div class="paper-top"><span class="paper-label">ANSWER SHEET</span><span class="paper-page">01 / 04</span></div>
+          <div class="paper-title">Science · Unit 03</div>
+          <div class="paper-line line-long"></div><div class="paper-line line-mid"></div>
+          <div class="question"><span class="q-num">01</span><div><b>What makes a plant grow?</b><div class="handwriting">Sunlight, water and soil help...</div><div class="paper-line line-short"></div></div></div>
+          <div class="question"><span class="q-num">02</span><div><b>Explain the water cycle.</b><div class="handwriting">Water evaporates into the air...</div><div class="paper-line line-mid"></div></div></div>
+          <div class="paper-bottom"><span class="paper-note">Reviewed with care</span><span class="mark-badge">8.5 <small>/ 10</small></span></div>
+        </div>
+        <div class="float-tag tag-feedback"><span>↗</span> Clear feedback, fair marks</div>
+      </div>
+    </section>
+
+    <section class="trust-row" id="for-schools"><div class="trust-label">BUILT FOR THE CLASSROOM</div><div class="trust-item"><span>01</span> Handwritten paper support</div><div class="trust-item"><span>02</span> Meaning-aware evaluation</div><div class="trust-item"><span>03</span> Results students can understand</div></section>
+
+    <section class="how" id="how-it-works">
+      <div class="section-heading"><div><div class="eyebrow">A little less busywork</div><h2>From paper to progress<br>in three simple steps.</h2></div><p>Teachers stay in control. Students get feedback that helps them move forward.</p></div>
+      <div class="steps">
+        <article class="step-card"><div class="step-number">01 <span>↗</span></div><div class="step-icon icon-paper">▤</div><h3>Set the answer key</h3><p>Faculty define question-wise marks and upload the reference paper.</p></article>
+        <article class="step-card"><div class="step-number">02 <span>↗</span></div><div class="step-icon icon-spark">✳</div><h3>Review written answers</h3><p>Handwritten responses are read and compared for key ideas and meaning.</p></article>
+        <article class="step-card"><div class="step-number">03 <span>↗</span></div><div class="step-icon icon-chart">↗</div><h3>Share clear results</h3><p>Students can check marks by question and understand their progress.</p></article>
+      </div>
+    </section>
+
+    <section class="cta"><div><div class="eyebrow eyebrow-light">Ready when you are</div><h2>Make room for<br>better learning.</h2></div><div class="cta-action"><p>Start with the faculty portal to set up an evaluation, or sign in as a student to see your marks.</p><div><a class="button button-light" href="{% url 'FacultyLogin' %}">Faculty login <span aria-hidden="true">↗</span></a><a class="cta-student" href="{% url 'StudentLogin' %}">Student login →</a></div></div><span class="cta-orbit"></span></section>
+  </main>
+  <footer class="footer"><a class="brand" href="{% url 'index' %}"><span class="brand-mark">e</span><span>evalvate<span class="brand-dot">.</span></span></a><span>Thoughtful assessment for every learner.</span><span>© 2026 Krishnaveni Concept School</span></footer>
+</body>
+</html>

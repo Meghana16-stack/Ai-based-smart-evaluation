@@ -1,0 +1,27 @@
+# Local databases and account data
+db.sqlite3
+*.sqlite3
+
+# Student papers, answer keys, and cached OCR output
+Dataset/
+EvaluateApp/static/ParseFiles/
+EvaluateApp/static/*.pdf
+EvaluateApp/static/uploads/
+*.pdf
+SCREENS.docx
+
+# Secrets and local environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# Editor and OS files
+.vscode/
+.idea/
+Thumbs.db

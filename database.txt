@@ -1,0 +1,15 @@
+create database evaluate;
+use evaluate;
+
+create table register(username varchar(50) primary key,
+password varchar(50),
+contact_no varchar(20),
+email varchar(50), 
+address varchar(100),
+usertype varchar(30));
+
+create table evaluation(roll_number varchar(30),student_name varchar(50),question varchar(300),
+student_answer varchar(600), max_marks varchar(20), awarded_marks varchar(20));
+
+create table max_marks(from_question int, end_question int, marks int); 
+

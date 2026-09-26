@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Evaluation System - Student Login</title>
+<meta charset="utf-8">
+
+<script>
+function validate(formObj) {
+    if (formObj.t1.value.length == 0) {
+        alert("Please Enter Username");
+        formObj.t1.focus();
+        return false;
+    }
+    if (formObj.t2.value.length == 0) {
+        alert("Please Enter Password");
+        formObj.t2.focus();
+        return false;
+    }
+    return true;
+}
+</script>
+
+<style>
+html, body{
+    height:100%;
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#ffffff;
+}
+
+/* PAGE WRAPPER */
+.page{
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER (same as before) */
+.header{
+    text-align:center;
+    padding:22px 0;
+    border-bottom:1px solid #ddd;
+}
+.header h1{
+    margin:0;
+    color:#0d6efd;
+    font-size:34px;
+}
+
+/* CONTENT */
+.content{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* LOGIN CARD */
+.login-card{
+    width:420px;
+    height:480px;
+    background:#0b1f1f;
+    border-radius:12px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.4);
+    padding:35px;
+    box-sizing:border-box;
+    text-align:center;
+}
+
+/* TITLE */
+.login-card h2{
+    color:#ffffff;
+    letter-spacing:3px;
+    margin-bottom:45px;
+}
+
+/* INPUTS */
+.login-card input{
+    width:90%;
+    height:45px;
+    margin-bottom:20px;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    font-size:15px;
+}
+
+/* BUTTON */
+.login-card button{
+    width:96%;
+    height:45px;
+    background:#3aafa9;
+    border:none;
+    border-radius:6px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+/* ERROR */
+.error{
+    color:red;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+/* REGISTER LINK */
+.register{
+    margin-top:25px;
+    font-size:19px;
+    color:#ccc;
+}
+.register a{
+    color:#3aafa9;
+    text-decoration:none;
+}
+
+/* FOOTER (same as before) */
+.footer{
+    background:#0d6efd;
+    color:#ffffff;
+    padding:12px 20px;
+    font-size:14px;
+    text-align:left;
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>AI-Based Smart Evaluation System</h1>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <form method="post" action="{% url 'StudentLoginAction' %}" onsubmit="return validate(this);">
+        {% csrf_token %}
+
+        <div class="login-card">
+
+            <h2>STUDENT LOGIN</h2>
+
+            {% if data %}
+                <div class="error">{{ data|safe }}</div>
+            {% endif %}
+
+            <input type="text" name="t1" placeholder="Username">
+            <input type="password" name="t2" placeholder="Password">
+
+            <button type="submit">LOGIN</button>
+
+            <div class="register">
+                New student?
+                <a href="{% url 'Register' %}">Register</a>
+            </div>
+
+        </div>
+        </form>
+    </div>
+
+    <!-- FOOTER -->
+    <div style=" margin:0; font-size:20px; text-align:center;" class="footer">
+        © 2026 AI-Based Smart Evaluation System | Krishnaveni Concept School
+    </div>
+
+</div>
+</body>
+</html>
