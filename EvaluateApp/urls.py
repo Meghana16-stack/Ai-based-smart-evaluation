@@ -26,4 +26,13 @@ urlpatterns = [
     path("ViewMarks.html", views.ViewMarks, name="ViewMarks"),
     path("ViewMarks", views.ViewMarks, name="ViewMarks_clean"),
     path("ViewMarksAction", views.ViewMarksAction, name="ViewMarksAction"),
+    path("FacultyScreen.html", views.FacultyScreen, name="FacultyScreen"),
+    path("FacultyScreen", views.FacultyScreen, name="FacultyScreen_clean"),
+    path("StudentScreen.html", views.StudentScreen, name="StudentScreen"),
+    path("StudentScreen", views.StudentScreen, name="StudentScreen_clean"),
+    path("student_dashboard.html", views.student_dashboard, name="student_dashboard"),
+    path("student_dashboard", views.student_dashboard, name="student_dashboard_clean"),
+    path("dashboard.html", views.student_dashboard, name="dashboard"),
+    path("DemoDetails.html", views.DemoDetails, name="DemoDetails"),
+    path("DemoDetails", views.DemoDetails, name="DemoDetails_clean"),
 ]

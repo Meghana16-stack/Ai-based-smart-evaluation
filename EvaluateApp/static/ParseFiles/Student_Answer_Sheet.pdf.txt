@@ -1,0 +1,14 @@
+{
+  "Q1": {
+    "question": "Explain the process of photosynthesis in green plants.",
+    "answer": "Plants convert sunlight, water, and carbon dioxide into oxygen and sugar energy."
+  },
+  "Q2": {
+    "question": "What is an algorithm and why is it important?",
+    "answer": "An algorithm is a clear set of step-by-step rules or instructions to solve problems."
+  },
+  "Q3": {
+    "question": "What is an operating system?",
+    "answer": "An operating system controls hardware devices and runs software applications on computers."
+  }
+}

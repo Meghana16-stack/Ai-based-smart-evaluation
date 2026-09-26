@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenith — Student Study Hub & Dashboard</title>
+  <meta name="description" content="A calm, polished, all-in-one student dashboard to organize tasks, master focus with Pomodoro, auto-save lecture notes, and track weekly academic progress.">
+  
+  <!-- Preconnect and Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Dashboard Stylesheet -->
+  <link rel="stylesheet" href="dashboard_style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ==========================================================================
+         SIDEBAR NAVIGATION
+         ========================================================================== -->
+    <aside class="sidebar" id="sidebar" aria-label="Main Navigation">
+      <div class="sidebar-header">
+        <a href="student_dashboard.html" class="brand-link">
+          <div class="brand-icon-box" aria-hidden="true">⚡</div>
+          <span class="brand-title">Zenith<span class="brand-badge">Study</span></span>
+        </a>
+        <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close navigation sidebar">✕</button>
+      </div>
+
+      <nav class="sidebar-nav" role="tablist">
+        <span class="nav-section-label">Workspace</span>
+
+        <button class="nav-item active" data-target="view-overview" role="tab" aria-selected="true" id="tab-overview">
+          <span class="nav-item-icon" aria-hidden="true">🏠</span>
+          <span>Overview</span>
+        </button>
+
+        <button class="nav-item" data-target="view-tasks" role="tab" aria-selected="false" id="tab-tasks">
+          <span class="nav-item-icon" aria-hidden="true">✓</span>
+          <span>Tasks & Goals</span>
+          <span class="nav-item-badge" id="sidebar-badge-tasks">3</span>
+        </button>
+
+        <button class="nav-item" data-target="view-pomodoro" role="tab" aria-selected="false" id="tab-pomodoro">
+          <span class="nav-item-icon" aria-hidden="true">⏱️</span>
+          <span>Focus Timer</span>
+        </button>
+
+        <button class="nav-item" data-target="view-notes" role="tab" aria-selected="false" id="tab-notes">
+          <span class="nav-item-icon" aria-hidden="true">📝</span>
+          <span>Study Notes</span>
+        </button>
+
+        <span class="nav-section-label" style="margin-top:10px;">Analytics</span>
+
+        <button class="nav-item" data-target="view-progress" role="tab" aria-selected="false" id="tab-progress">
+          <span class="nav-item-icon" aria-hidden="true">📊</span>
+          <span>Progress & Milestones</span>
+        </button>
+
+        <button class="nav-item" data-target="view-settings" role="tab" aria-selected="false" id="tab-settings">
+          <span class="nav-item-icon" aria-hidden="true">⚙️</span>
+          <span>Data & Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="streak-card">
+          <div class="streak-icon" aria-hidden="true">🔥</div>
+          <div>
+            <div class="streak-title" id="sidebar-streak-count">5 Day Streak</div>
+            <div class="streak-desc">Consistency is your superpower!</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==========================================================================
+         MAIN CONTENT AREA
+         ========================================================================== -->
+    <div class="main-wrapper">
+      
+      <!-- TOP HEADER -->
+      <header class="topheader top-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open mobile navigation menu">☰</button>
+          <div>
+            <h2 class="header-greeting-title">
+              Hello, <span id="header-student-name">Meghana</span> <span aria-hidden="true">👋</span>
+            </h2>
+            <p class="header-greeting-subtitle" id="header-date-string">Keep calm and make steady progress today.</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Reset Sample Data Shortcut -->
+          <button class="btn-outline" id="btn-reset-sample-data" title="Reload realistic sample tasks, notes, and weekly charts" aria-label="Reset to Sample Data">
+            <span>🔄</span> <span>Reset Sample Data</span>
+          </button>
+
+          <!-- Shortcuts Help Button -->
+          <button class="btn-icon" id="btn-open-shortcuts" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
+            <span>⌨️</span>
+          </button>
+
+          <!-- Dark/Light Theme Toggle -->
+          <button class="btn-icon" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle dark and light theme">
+            <span id="theme-icon">🌙</span>
+          </button>
+
+          <!-- New Task Quick Action -->
+          <button class="btn-primary" id="open-add-task-btn">
+            <span>+</span> <span>New Task</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- MOTIVATIONAL MANTRA BAR -->
+      <div class="daily-mantra-bar" aria-live="polite">
+        <div class="mantra-text">
+          <span>💡 <strong>Study Mantra:</strong></span>
+          <span id="mantra-quote-text">"Success is the sum of small efforts, repeated day in and day out."</span>
+          <span id="mantra-quote-author" style="color:var(--text-muted); font-size:12px;">— Robert Collier</span>
+        </div>
+        <button class="mantra-refresh-btn" id="mantra-refresh-btn" aria-label="Load another study quote">
+          <span>↻</span> <span>Shuffle</span>
+        </button>
+      </div>
+
+      <!-- MAIN VIEW SECTIONS -->
+      <main class="content-area" id="main-content">
+        
+        <!-- ==========================================================================
+             1. OVERVIEW VIEW
+             ========================================================================== -->
+        <section class="view-section active" id="view-overview" aria-labelledby="tab-overview">
+          <div class="section-heading-box">
+            <div>
+              <h1>Study Life Overview</h1>
+              <p>Your daily snapshot of study focus, upcoming deadlines, and learning habits.</p>
+            </div>
+            <div>
+              <button class="btn-primary" onclick="navigateTo('view-pomodoro')">
+                <span>⏱️</span> <span>Start 25m Focus</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Top 4 Summary Cards -->
+          <div class="stats-summary-grid">
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Focus Today</div>
+                <div class="stat-value" id="ov-stat-focus">100m</div>
+                <div class="stat-meta"><span>⏱️</span> <span>4 sessions completed</span></div>
+              </div>
+              <div class="stat-icon-badge indigo" aria-hidden="true">⌛</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Tasks Progress</div>
+                <div class="stat-value" id="ov-stat-tasks">2 / 6</div>
+                <div class="stat-meta"><span>✓</span> <span>On track for this week</span></div>
+              </div>
+              <div class="stat-icon-badge teal" aria-hidden="true">🎯</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Study Streak</div>
+                <div class="stat-value" id="ov-stat-streak">5 Days</div>
+                <div class="stat-meta"><span>🔥</span> <span>Personal best this month!</span></div>
+              </div>
+              <div class="stat-icon-badge amber" aria-hidden="true">⚡</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Today's Sessions</div>
+                <div class="stat-value" id="ov-stat-sessions">4</div>
+                <div class="stat-meta"><span>🌿</span> <span>Next: Long break</span></div>
+              </div>
+              <div class="stat-icon-badge rose" aria-hidden="true">🌱</div>
+            </div>
+          </div>
+
+          <!-- Overview 2-Column Section -->
+          <div class="overview-columns">
+            
+            <!-- Left Column: Priority Tasks -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <div class="overview-card-title">
+                  <span>📌</span> <span>Priority Study Deadlines</span>
+                </div>
+                <button class="overview-link-btn" onclick="navigateTo('view-tasks')">
+                  <span>View All Tasks</span> <span>→</span>
+                </button>
+              </div>
+
+              <div id="overview-priority-tasks" class="task-items-container">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Right Column: Quick Focus & Notes Preview -->
+            <div>
+              <!-- Mini Pomodoro Card -->
+              <div class="overview-card" style="text-align:center;">
+                <div class="overview-card-header">
+                  <div class="overview-card-title">
+                    <span>⏱️</span> <span>Pomodoro Chamber</span>
+                  </div>
+                  <button class="overview-link-btn" onclick="navigateTo('view-pomodoro')">
+                    <span>Full Timer</span> <span>→</span>
+                  </button>
+                </div>
+                
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
+                  Current Mode: <strong>25 min Focus Block</strong>
+                </p>
+                <div style="font-family:var(--font-mono); font-size:36px; font-weight:700; color:var(--text-main); margin-bottom:14px;">
+                  25:00
+                </div>
+                <div style="display:flex; justify-content:center; gap:10px;">
+                  <button class="btn-primary" onclick="navigateTo('view-pomodoro')">
+                    <span>▶</span> <span>Enter Focus Mode</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Recent Note Card -->
+              <div class="overview-card">
+                <div class="overview-card-header">
+                  <div class="overview-card-title">
+                    <span>📝</span> <span>Latest Study Note</span>
+                  </div>
+                  <button class="overview-link-btn" onclick="navigateTo('view-notes')">
+                    <span>Notes Hub</span> <span>→</span>
+                  </button>
+                </div>
+                <div id="overview-recent-note">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- ==========================================================================
+             2. TASKS & GOALS VIEW
+             ========================================================================== -->
+        <section class="view-section" id="view-tasks" aria-labelledby="tab-tasks">
+          <div class="section-heading-box">
+            <div>
+              <h1>Tasks & Coursework</h1>
+              <p>Keep track of homework, problem sets, exam prep, and reading assignments.</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <span class="subject-tag" id="tasks-total-count" style="font-size:13px; padding:4px 12px;">3 pending</span>
+              <button class="btn-primary" onclick="openTaskModal()">
+                <span>+</span> <span>Add Task</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Add Task Bar -->
+          <form class="quick-add-task-bar" id="quick-add-task-form">
+            <span style="font-size:18px; color:var(--primary);" aria-hidden="true">➕</span>
+            <input type="text" class="quick-add-input" id="quick-add-input" placeholder="Type a task and hit Enter to quickly add to your study list (e.g., 'Finish Chemistry Ch. 4 review questions')..." aria-label="Quick add task">
+            <button type="submit" class="btn-primary" style="padding:6px 14px; font-size:12.5px;">Add</button>
+          </form>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="tasks-toolbar">
+            <div class="tasks-filter-group" role="group" aria-label="Task Status Filters">
+              <button class="filter-tab-btn task-filter-tab active" data-filter="all">All Tasks</button>
+              <button class="filter-tab-btn task-filter-tab" data-filter="active">Active</button>
+              <button class="filter-tab-btn task-filter-tab" data-filter="today">Due Today</button>
+              <button class="filter-tab-btn task-filter-tab" data-filter="overdue">Overdue</button>
+              <button class="filter-tab-btn task-filter-tab" data-filter="completed">Completed</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <!-- Subject Dropdown Filter -->
+              <select class="tasks-dropdown-select" id="tasks-subject-select" aria-label="Filter tasks by subject">
+                <option value="all">All Subjects</option>
+              </select>
+
+              <!-- Sort Dropdown -->
+              <select class="tasks-dropdown-select" id="tasks-sort-select" aria-label="Sort tasks">
+                <option value="dueDate">Sort by Due Date</option>
+                <option value="priority">Sort by Priority</option>
+                <option value="title">Sort by Title (A-Z)</option>
+              </select>
+
+              <!-- Search Bar -->
+              <div class="tasks-search-box">
+                <span class="search-icon" aria-hidden="true">🔍</span>
+                <input type="text" class="tasks-search-input" id="tasks-search-input" placeholder="Search tasks..." aria-label="Search tasks">
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasks List Container -->
+          <div id="tasks-list-container" class="task-items-container" role="list">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+
+
+        <!-- ==========================================================================
+             3. FOCUS & POMODORO TIMER VIEW
+             ========================================================================== -->
+        <section class="view-section" id="view-pomodoro" aria-labelledby="tab-pomodoro">
+          <div class="section-heading-box" style="justify-content:center; text-align:center;">
+            <div>
+              <h1>Pomodoro Study Chamber</h1>
+              <p>Structure your study blocks with deliberate focus intervals and refreshing breaks.</p>
+            </div>
+          </div>
+
+          <div class="pomodoro-container">
+            <div class="timer-card">
+              
+              <!-- Timer Mode Selector -->
+              <div class="timer-mode-tabs" role="tablist" aria-label="Timer Modes">
+                <button class="mode-tab-btn active" data-mode="focus" role="tab" aria-selected="true">Focus (25m)</button>
+                <button class="mode-tab-btn" data-mode="shortBreak" role="tab" aria-selected="false">Short Break (5m)</button>
+                <button class="mode-tab-btn" data-mode="longBreak" role="tab" aria-selected="false">Long Break (15m)</button>
+              </div>
+
+              <!-- Attached Task Pill -->
+              <div class="timer-attached-task" id="timer-attached-banner" style="display:none;">
+                <span>🎯</span>
+                <span id="timer-attached-name">Task Name</span>
+                <button onclick="clearAttachedTask()" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12px; margin-left:4px;" title="Unlink task">✕</button>
+              </div>
+
+              <!-- SVG Animated Circular Ring -->
+              <div class="timer-circle-box" aria-hidden="true">
+                <svg class="timer-svg" viewBox="0 0 280 280">
+                  <circle class="timer-track-circle" cx="140" cy="140" r="125"></circle>
+                  <circle class="timer-progress-circle" id="timer-progress-circle" cx="140" cy="140" r="125"></circle>
+                </svg>
+                <div class="timer-inner-content">
+                  <div class="timer-digital-display" id="timer-digital-display" aria-live="polite">25:00</div>
+                  <div class="timer-status-text" id="timer-status-text">Focus Session</div>
+                </div>
+              </div>
+
+              <!-- Timer Controls Row -->
+              <div class="timer-controls-row">
+                <button class="btn-timer-secondary" id="btn-timer-reset" title="Reset Timer" aria-label="Reset Timer">
+                  ↺
+                </button>
+                <button class="btn-timer-primary" id="btn-timer-toggle" title="Start / Pause Timer (Spacebar)" aria-label="Start Pomodoro Timer">
+                  <span id="timer-toggle-icon">▶</span>
+                </button>
+                <button class="btn-timer-secondary" id="btn-timer-skip" title="Skip to Next Phase" aria-label="Skip to Next Phase">
+                  ⏭
+                </button>
+                <button class="btn-timer-secondary" id="btn-timer-sound" title="Toggle Chime Sound" aria-label="Toggle Chime Sound">
+                  🔔
+                </button>
+              </div>
+
+              <!-- Rounds Tracker & Session Count -->
+              <div class="timer-rounds-box">
+                <div class="rounds-label">Interval Progress (Round 1 of 4):</div>
+                <div class="rounds-dots" id="timer-rounds-dots" aria-label="Session rounds progress">
+                  <!-- Generated dynamically -->
+                </div>
+                <div style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">
+                  Today's Completed Focus Sessions: <strong style="color:var(--text-main);" id="timer-sessions-count">4</strong>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Custom Timer Lengths Configuration Card -->
+            <div class="timer-settings-card">
+              <div class="timer-settings-title">
+                <span>⚙️ Customize Interval Durations</span>
+                <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">Changes apply on next reset</span>
+              </div>
+              <form id="timer-settings-form">
+                <div class="timer-inputs-grid">
+                  <div class="timer-input-group">
+                    <label for="setting-focus-min">Focus Duration (mins)</label>
+                    <input type="number" id="setting-focus-min" min="1" max="90" value="25" required>
+                  </div>
+                  <div class="timer-input-group">
+                    <label for="setting-short-min">Short Break (mins)</label>
+                    <input type="number" id="setting-short-min" min="1" max="30" value="5" required>
+                  </div>
+                  <div class="timer-input-group">
+                    <label for="setting-long-min">Long Break (mins)</label>
+                    <input type="number" id="setting-long-min" min="1" max="60" value="15" required>
+                  </div>
+                </div>
+                <div style="text-align:right; margin-top:14px;">
+                  <button type="submit" class="btn-outline" style="font-size:12.5px; padding:6px 14px;">Save Durations</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- ==========================================================================
+             4. NOTES SECTION
+             ========================================================================== -->
+        <section class="view-section" id="view-notes" aria-labelledby="tab-notes">
+          <div class="section-heading-box">
+            <div>
+              <h1>Study Notes & Reference</h1>
+              <p>Capture key lecture takeaways, formula cheat sheets, and concepts with auto-save.</p>
+            </div>
+            <div>
+              <button class="btn-primary" id="btn-new-note">
+                <span>+</span> <span>New Note</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="notes-container">
+            
+            <!-- Left Sidebar: Note List -->
+            <div class="notes-sidebar-card">
+              <div class="notes-sidebar-header">
+                <div style="position:relative;">
+                  <span class="search-icon" aria-hidden="true">🔍</span>
+                  <input type="text" class="notes-search-input" id="notes-search-input" placeholder="Search notes..." aria-label="Search study notes">
+                </div>
+                <!-- Subject / Tag Filter Pills -->
+                <div class="notes-tags-scroll" id="notes-tags-bar" role="group" aria-label="Filter notes by tag">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <div class="notes-list" id="notes-items-list" role="list">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Right Pane: Active Note Editor -->
+            <div class="notes-editor-card">
+              
+              <!-- Editor Header -->
+              <div class="editor-header">
+                <input type="text" class="editor-title-input" id="editor-note-title" placeholder="Note Title..." aria-label="Note title">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <button class="btn-outline" id="btn-note-pin" title="Pin this note to the top of list" style="padding:6px 12px; font-size:12px;">
+                    📍 Pin
+                  </button>
+                  <button class="btn-outline" id="btn-note-export" title="Download note as Markdown file" style="padding:6px 10px; font-size:12px;">
+                    ⬇️ Export
+                  </button>
+                  <button class="btn-outline" id="btn-note-delete" title="Delete note" style="padding:6px 10px; font-size:12px; color:var(--rose);">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metadata Bar -->
+              <div class="editor-meta-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <label for="editor-note-subject" style="font-size:12px; color:var(--text-muted); font-weight:600;">Subject:</label>
+                  <input type="text" id="editor-note-subject" class="form-control" style="padding:3px 8px; font-size:12px; width:150px;" placeholder="e.g. Computer Science" aria-label="Note subject">
+                </div>
+
+                <div class="editor-save-indicator" id="editor-save-indicator" aria-live="polite">
+                  <span>●</span> <span>Saved just now</span>
+                </div>
+              </div>
+
+              <!-- Formatting Toolbar -->
+              <div class="editor-toolbar" role="toolbar" aria-label="Note formatting toolbar">
+                <button class="format-btn" data-action="bold" title="Bold (**text**)"><b>B</b></button>
+                <button class="format-btn" data-action="italic" title="Italic (*text*)"><i>I</i></button>
+                <button class="format-btn" data-action="h2" title="Heading (## Title)"><b>H2</b></button>
+                <span style="color:var(--border-color);">|</span>
+                <button class="format-btn" data-action="list" title="Bullet List (- item)">• List</button>
+                <button class="format-btn" data-action="task" title="Checklist item (- [ ] item)">☑ Checkbox</button>
+                <button class="format-btn" data-action="code" title="Code block (``` code ```)">💻 Code</button>
+                <button class="format-btn" data-action="quote" title="Blockquote (> quote)">❝ Quote</button>
+              </div>
+
+              <!-- Note Content Area -->
+              <textarea class="editor-textarea" id="editor-textarea" placeholder="Start typing your study notes, formulas, questions, or revision summaries here..." aria-label="Note body content"></textarea>
+
+              <!-- Footer Statistics -->
+              <div class="editor-footer-stats">
+                <div style="display:flex; gap:16px;">
+                  <span id="note-stat-words">0 words</span>
+                  <span id="note-stat-chars">0 chars</span>
+                </div>
+                <div>
+                  <span id="note-stat-readtime">~1 min read</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- ==========================================================================
+             5. PROGRESS & ANALYTICS VIEW
+             ========================================================================== -->
+        <section class="view-section" id="view-progress" aria-labelledby="tab-progress">
+          <div class="section-heading-box">
+            <div>
+              <h1>Academic Progress & Milestones</h1>
+              <p>Review your weekly study velocity, subject time distribution, and earned badges.</p>
+            </div>
+            <div>
+              <span class="subject-tag" style="font-size:13px; padding:6px 12px; background:var(--sage-light); color:var(--sage);">
+                🌿 Consistency Level: High
+              </span>
+            </div>
+          </div>
+
+          <!-- Stat Metrics Grid -->
+          <div class="stats-summary-grid">
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Total Study This Week</div>
+                <div class="stat-value" id="prog-stat-hours">14.2 hrs</div>
+                <div class="stat-meta"><span>⏱️</span> <span>Across 7 days</span></div>
+              </div>
+              <div class="stat-icon-badge indigo" aria-hidden="true">📈</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Task Completion Rate</div>
+                <div class="stat-value" id="prog-stat-rate">67%</div>
+                <div class="stat-meta"><span>✓</span> <span>High assignment turnaround</span></div>
+              </div>
+              <div class="stat-icon-badge teal" aria-hidden="true">🎖️</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Pomodoro Blocks</div>
+                <div class="stat-value" id="prog-stat-sessions">30</div>
+                <div class="stat-meta"><span>⏱️</span> <span>Single-tasked focus</span></div>
+              </div>
+              <div class="stat-icon-badge rose" aria-hidden="true">⏱️</div>
+            </div>
+
+            <div class="stat-card">
+              <div>
+                <div class="stat-label">Daily Active Streak</div>
+                <div class="stat-value" id="prog-stat-streak">5 Days 🔥</div>
+                <div class="stat-meta"><span>🔥</span> <span>Strong continuous habit</span></div>
+              </div>
+              <div class="stat-icon-badge amber" aria-hidden="true">🔥</div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="progress-grid">
+            
+            <!-- Weekly Focus Chart -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <div class="chart-title">Weekly Focus Hours (Last 7 Days)</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Hover over any bar to view exact minutes and tasks completed</div>
+                </div>
+                <span class="subject-tag">Daily Target: 90m</span>
+              </div>
+
+              <!-- Interactive Bar Chart -->
+              <div class="weekly-bar-chart" id="weekly-bar-chart-container" role="img" aria-label="Weekly study focus bar chart">
+                <!-- Dynamically generated bars -->
+              </div>
+            </div>
+
+            <!-- Subject Distribution Breakdown -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">Subject Focus Breakdown</div>
+              </div>
+
+              <div class="subject-breakdown-list" id="subject-breakdown-container">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Milestones & Badges Grid -->
+          <div style="margin-top:12px;">
+            <div class="section-heading-box" style="margin-bottom:16px;">
+              <div>
+                <h3 style="font-size:18px; font-weight:700; color:var(--text-main);">Study Milestones & Achievement Badges</h3>
+                <p style="font-size:13px; color:var(--text-muted);">Complete tasks and log focus blocks to level up your student profile.</p>
+              </div>
+            </div>
+
+            <div class="milestones-grid" id="milestones-cards-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ==========================================================================
+             6. DATA & SETTINGS VIEW
+             ========================================================================== -->
+        <section class="view-section" id="view-settings" aria-labelledby="tab-settings">
+          <div class="section-heading-box">
+            <div>
+              <h1>Data Management & Preferences</h1>
+              <p>Control your dashboard data, backup your study files, or restore realistic demo content.</p>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+            
+            <!-- Sample Data & Reset -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <div class="overview-card-title">
+                  <span>🔄</span> <span>Sample & Demo Content</span>
+                </div>
+              </div>
+              <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+                Resetting to sample content loads 6 realistic multi-subject tasks, 3 complete markdown study notes, and 7 days of focus history.
+              </p>
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button class="btn-primary" onclick="document.getElementById('btn-reset-sample-data').click()">
+                  <span>🔄</span> <span>Reset to Sample Data</span>
+                </button>
+                <button class="btn-outline" id="btn-clear-all-data" style="color:var(--rose); border-color:var(--rose-border);">
+                  <span>🗑️</span> <span>Clear All Data</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Backup & Export -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <div class="overview-card-title">
+                  <span>💾</span> <span>Backup & Data Portability</span>
+                </div>
+              </div>
+              <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+                Download your tasks, notes, and study logs as a JSON backup file to keep your data safe or transfer between devices.
+              </p>
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button class="btn-primary" id="btn-export-json">
+                  <span>⬇️</span> <span>Export JSON Backup</span>
+                </button>
+                <label class="btn-outline" style="cursor:pointer;">
+                  <span>⬆️</span> <span>Restore Backup</span>
+                  <input type="file" id="file-import-json" accept=".json" style="display:none;">
+                </label>
+              </div>
+            </div>
+
+            <!-- Student Profile Settings -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <div class="overview-card-title">
+                  <span>👤</span> <span>Student Profile</span>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label for="setting-student-name">Your Preferred Name</label>
+                <input type="text" id="setting-student-name" class="form-control" value="Meghana">
+              </div>
+              <button class="btn-outline" onclick="
+                const n = document.getElementById('setting-student-name').value.trim() || 'Student';
+                appState.student.name = n;
+                saveState();
+                document.getElementById('header-student-name').textContent = n;
+                showToast('Name updated successfully', '✓');
+              ">
+                Update Name
+              </button>
+            </div>
+
+            <!-- Accessibility & Contrast Guide -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <div class="overview-card-title">
+                  <span>♿</span> <span>Accessibility & Focus</span>
+                </div>
+              </div>
+              <ul style="font-size:13px; color:var(--text-secondary); line-height:1.7; padding-left:18px;">
+                <li>High contrast color palette compliant with WCAG AA standards.</li>
+                <li>Fully keyboard navigable: use <kbd>Tab</kbd> to focus, <kbd>Space</kbd> to toggle Pomodoro, <kbd>Esc</kbd> to close dialogs.</li>
+                <li>Offline Web Audio synthesizer for chime alerts without external asset requests.</li>
+                <li>Screen-reader live updates for timer and autosave statuses.</li>
+              </ul>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       MODALS & DIALOGS
+       ========================================================================== -->
+
+  <!-- 1. Task Add/Edit Modal -->
+  <div class="modal-overlay" id="task-modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="task-modal-title">Add New Task</h3>
+        <button class="modal-close-btn" id="task-modal-close" aria-label="Close task dialog">✕</button>
+      </div>
+
+      <form id="task-modal-form" class="modal-form">
+        <div class="form-group">
+          <label for="task-input-title">Task Title *</label>
+          <input type="text" id="task-input-title" class="form-control" placeholder="e.g. Implement Dijkstra Algorithm" required>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label for="task-input-subject">Subject / Course</label>
+            <input type="text" id="task-input-subject" class="form-control" placeholder="e.g. Computer Science" list="subjects-datalist">
+            <datalist id="subjects-datalist">
+              <option value="Computer Science">
+              <option value="Mathematics">
+              <option value="Chemistry">
+              <option value="World History">
+              <option value="Biology">
+              <option value="Physics">
+              <option value="Literature">
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="task-input-priority">Priority</label>
+            <select id="task-input-priority" class="form-control">
+              <option value="urgent">🔴 Urgent</option>
+              <option value="high">🟠 High</option>
+              <option value="medium" selected>🔵 Medium</option>
+              <option value="low">⚪ Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label for="task-input-due">Due Date</label>
+            <input type="date" id="task-input-due" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="task-input-pomo">Estimated Focus Blocks (Pomodoros)</label>
+            <input type="number" id="task-input-pomo" class="form-control" min="1" max="10" value="2">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="task-input-notes">Notes or Subtasks</label>
+          <textarea id="task-input-notes" class="form-control" rows="3" placeholder="Additional instructions, textbook page numbers, or research links..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" id="task-modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary" id="task-modal-submit">Create Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 2. Keyboard Shortcuts Cheat Sheet Modal -->
+  <div class="modal-overlay" id="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+    <div class="modal-box" style="max-width:460px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="shortcuts-title">⌨️ Keyboard Shortcuts</h3>
+        <button class="modal-close-btn" id="shortcuts-modal-close" aria-label="Close shortcuts dialog">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+          <span style="color:var(--text-secondary);">Start / Pause Pomodoro Timer</span>
+          <kbd style="background:var(--bg-subtle); padding:3px 8px; border-radius:4px; font-weight:700; border:1px solid var(--border-color);">Space</kbd>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+          <span style="color:var(--text-secondary);">Open New Task Dialog</span>
+          <kbd style="background:var(--bg-subtle); padding:3px 8px; border-radius:4px; font-weight:700; border:1px solid var(--border-color);">T</kbd>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+          <span style="color:var(--text-secondary);">Open Keyboard Shortcuts Guide</span>
+          <kbd style="background:var(--bg-subtle); padding:3px 8px; border-radius:4px; font-weight:700; border:1px solid var(--border-color);">?</kbd>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-color);">
+          <span style="color:var(--text-secondary);">Close Any Open Modal</span>
+          <kbd style="background:var(--bg-subtle); padding:3px 8px; border-radius:4px; font-weight:700; border:1px solid var(--border-color);">Esc</kbd>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" onclick="document.getElementById('shortcuts-modal').classList.remove('active')">Got it!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Main JavaScript Logic -->
+  <script src="dashboard_app.js"></script>
+
+  <script>
+    // Header date display
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateEl = document.getElementById('header-date-string');
+      if (dateEl) {
+        const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+        const now = new Date();
+        dateEl.textContent = `${now.toLocaleDateString('en-US', options)} · Stay focused and make steady progress.`;
+      }
+    });
+  </script>
+
+</body>
+</html>

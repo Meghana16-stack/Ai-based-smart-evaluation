@@ -44,26 +44,36 @@ prompt = """Please analyze this handwritten PDF document. Extract all questions 
          """
 
 def parsePDF(pdf_path, save_path):
-    if not os.path.exists(save_path):
-        if not gemini_api_key:
-            raise ValueError("GEMINI_API_KEY environment variable is not configured. Please set GEMINI_API_KEY to parse new PDF files with Gemini AI.")
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        sample_file = genai.upload_file(path=pdf_path, mime_type="application/pdf")
-        response = model.generate_content([sample_file, prompt])
-        parse_data = response.text.strip()
-        start = parse_data.find("{")
-        end = parse_data.rfind("}")
-        if start != -1 and end != -1 and end > start:
-            lines = parse_data[start:end+1].strip()
+    if os.path.exists(save_path):
+        with open(save_path, "r", encoding="utf-8", errors="ignore") as file:
+            return file.read()
+
+    from django.conf import settings
+    base_filename = os.path.basename(save_path)
+    bundle_candidate = os.path.join(settings.BASE_DIR, "EvaluateApp", "static", "ParseFiles", base_filename)
+    if os.path.exists(bundle_candidate):
+        with open(bundle_candidate, "r", encoding="utf-8", errors="ignore") as file:
+            return file.read()
+
+    if not gemini_api_key:
+        raise ValueError("GEMINI_API_KEY environment variable is not configured. Please set GEMINI_API_KEY in your Vercel project environment variables to parse new PDF files with Gemini AI.")
+
+    model = genai.GenerativeModel('gemini-2.5-flash')
+    sample_file = genai.upload_file(path=pdf_path, mime_type="application/pdf")
+    response = model.generate_content([sample_file, prompt])
+    parse_data = response.text.strip()
+    start = parse_data.find("{")
+    end = parse_data.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        lines = parse_data[start:end+1].strip()
+        try:
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             with open(save_path, "w", encoding="utf-8") as file:
                 file.write(lines)
-        else:
-            lines = "{}"
-    else:
-        with open(save_path, "r", encoding="utf-8", errors="ignore") as file:
-            lines = file.read()
-    return lines
+        except OSError:
+            pass
+        return lines
+    return "{}"
 
 
 def evaluate_answer(teacher_answer, student_answer, max_marks, weight_keyword=0.4, weight_semantic=0.6):
@@ -235,12 +245,22 @@ def EvaluatePaperAction(request):
             if 't3' not in request.FILES or 't4' not in request.FILES:
                 return render(request, 'EvaluatePaper.html', {'data': "Please upload both Faculty Paper and Student Paper."})
 
-            faculty_file = request.FILES['t3'].name
-            student_file = request.FILES['t4'].name
+            from django.conf import settings
+            faculty_file = os.path.basename(request.FILES['t3'].name)
+            student_file = os.path.basename(request.FILES['t4'].name)
 
-            os.makedirs("EvaluateApp/static/ParseFiles", exist_ok=True)
-            faculty_path = os.path.join("EvaluateApp", "static", faculty_file)
-            student_path = os.path.join("EvaluateApp", "static", student_file)
+            if os.environ.get('VERCEL'):
+                upload_dir = "/tmp/uploads"
+                parse_dir = "/tmp/ParseFiles"
+            else:
+                upload_dir = os.path.join(settings.BASE_DIR, "EvaluateApp", "static")
+                parse_dir = os.path.join(settings.BASE_DIR, "EvaluateApp", "static", "ParseFiles")
+
+            os.makedirs(upload_dir, exist_ok=True)
+            os.makedirs(parse_dir, exist_ok=True)
+
+            faculty_path = os.path.join(upload_dir, faculty_file)
+            student_path = os.path.join(upload_dir, student_file)
 
             with open(faculty_path, "wb") as f:
                 f.write(request.FILES['t3'].read())
@@ -248,8 +268,8 @@ def EvaluatePaperAction(request):
             with open(student_path, "wb") as f:
                 f.write(request.FILES['t4'].read())
 
-            faculty_parse_path = os.path.join("EvaluateApp", "static", "ParseFiles", faculty_file + ".txt")
-            student_parse_path = os.path.join("EvaluateApp", "static", "ParseFiles", student_file + ".txt")
+            faculty_parse_path = os.path.join(parse_dir, faculty_file + ".txt")
+            student_parse_path = os.path.join(parse_dir, student_file + ".txt")
 
             faculty_text = parsePDF(faculty_path, faculty_parse_path)
             student_text = parsePDF(student_path, student_parse_path)
@@ -424,5 +444,17 @@ def FacultyLoginAction(request):
             return render(request, "FacultyScreen.html", {'data': welcome_msg})
         else:
             return render(request, 'FacultyLogin.html', {'data': "Invalid username or password"})
+
+def FacultyScreen(request):
+    return render(request, "FacultyScreen.html", {'data': ''})
+
+def StudentScreen(request):
+    return render(request, "StudentScreen.html", {'data': ''})
+
+def student_dashboard(request):
+    return render(request, "student_dashboard.html")
+
+def DemoDetails(request):
+    return render(request, "DemoDetails.html")
 
 

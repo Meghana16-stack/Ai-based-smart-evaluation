@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Demo Details & Testing Guide — AI-Based Smart Evaluation System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="shared_style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">e</span>
+      <span>evalvate<span class="brand-dot">.</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="DemoDetails.html" class="active">Demo Details</a>
+      <a href="StudentLogin.html">Student Login</a>
+      <a href="FacultyLogin.html">Faculty Portal</a>
+      <a href="Register.html">Register</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="button button-teal" href="FacultyLogin.html">Faculty Portal ↗</a>
+      <a class="button button-dark" href="StudentLogin.html">Student Portal →</a>
+    </div>
+  </header>
+
+  <div class="portal-wrapper">
+    <div style="margin-bottom:30px; text-align:center;">
+      <span style="background:#eaf2e1; color:#395a1e; font-size:12px; font-weight:bold; padding:4px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:1px;">
+        Interactive Demonstration Guide
+      </span>
+      <h1 style="font:800 36px 'Manrope', sans-serif; margin:12px 0 8px; color:#1a2318;">System Demo Details & Testing Suite</h1>
+      <p style="color:#636c5e; font-size:16px; max-width:640px; margin:auto;">
+        Welcome to the AI-Based Smart Evaluation System project created at <b>BVRIT</b> by <b>G. Meghana</b>.
+      </p>
+    </div>
+
+    <!-- CREDENTIALS GRID -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:30px;">
+      <!-- FACULTY -->
+      <div class="portal-card" style="margin-bottom:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h3 style="margin:0;">🎓 Faculty Examiner Demo</h3>
+          <span style="background:#e8f4fd; color:#0d6efd; font-weight:bold; font-size:11px; padding:3px 8px; border-radius:4px;">EXAMINER</span>
+        </div>
+        <p style="color:#666; font-size:14px; margin-bottom:14px;">Access marks allocation, paper evaluation with AI, and rank calculation leaderboards.</p>
+        <div style="background:#f7f9f5; border:1px solid #e1e7dc; border-radius:8px; padding:12px 16px; font-family:'JetBrains Mono', monospace; font-size:13px; margin-bottom:16px;">
+          <div>Username: <b style="color:#111;">ProfSharma</b></div>
+          <div style="margin-top:4px;">Password: <b style="color:#111;">pass123</b></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="FacultyLogin.html" class="button button-teal" style="flex:1;">Open Faculty Login →</a>
+          <a href="FacultyScreen.html" class="button button-outline">Direct Dashboard ↗</a>
+        </div>
+      </div>
+
+      <!-- STUDENT -->
+      <div class="portal-card" style="margin-bottom:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h3 style="margin:0;">🧑‍🎓 Student Candidate Demo</h3>
+          <span style="background:#f4f8f0; color:#2e7d32; font-weight:bold; font-size:11px; padding:3px 8px; border-radius:4px;">CANDIDATE</span>
+        </div>
+        <p style="color:#666; font-size:14px; margin-bottom:14px;">Log in to view question-by-question marks breakdown, feedback, and rank status.</p>
+        <div style="background:#f7f9f5; border:1px solid #e1e7dc; border-radius:8px; padding:12px 16px; font-family:'JetBrains Mono', monospace; font-size:13px; margin-bottom:16px;">
+          <div>Username: <b style="color:#111;">Meghana</b></div>
+          <div style="margin-top:4px;">Password: <b style="color:#111;">pass123</b></div>
+          <div style="margin-top:4px;">Demo Roll Number: <b style="color:#111;">2026CS101</b></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="StudentLogin.html" class="button button-dark" style="flex:1;">Open Student Login →</a>
+          <a href="ViewMarks.html?roll=2026CS101" class="button button-outline">Direct Report ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAMPLE EXAM BENCHMARKS -->
+    <div class="portal-card">
+      <h3>Pre-Configured Exam Questions & Evaluation Model</h3>
+      <p style="color:#666; font-size:14px; margin-bottom:18px;">The system evaluates each question using hybrid weighting: <b>40% Keyword Match (SpaCy POS)</b> + <b>60% Semantic Similarity (SentenceTransformers)</b>.</p>
+
+      <table class="eval-table">
+        <thead>
+          <tr>
+            <th style="width:25%;">Question</th>
+            <th style="width:35%;">Faculty Model Answer (Answer Key)</th>
+            <th style="width:30%;">Student Submitted Answer</th>
+            <th style="text-align:center;">Max Marks</th>
+            <th style="text-align:center;">Awarded</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Q1. Photosynthesis</b></td>
+            <td style="color:#444;">Photosynthesis is the biological process by which green plants use sunlight, water, and carbon dioxide to produce oxygen and glucose energy.</td>
+            <td style="color:#555; font-style:italic;">Plants convert sunlight, water, and carbon dioxide into oxygen and sugar energy.</td>
+            <td style="text-align:center;">10</td>
+            <td style="text-align:center;"><b style="color:#2e7d32; font-size:15px;">7.16</b></td>
+          </tr>
+          <tr>
+            <td><b>Q2. Algorithm Definition</b></td>
+            <td style="color:#444;">An algorithm is a step-by-step sequence of well-defined instructions designed to solve a specific problem or perform computation efficiently.</td>
+            <td style="color:#555; font-style:italic;">An algorithm is a clear set of step-by-step rules or instructions to solve problems.</td>
+            <td style="text-align:center;">10</td>
+            <td style="text-align:center;"><b style="color:#2e7d32; font-size:15px;">7.38</b></td>
+          </tr>
+          <tr>
+            <td><b>Q3. Operating System</b></td>
+            <td style="color:#444;">An operating system is system software that manages computer hardware, software resources, and provides common services for computer programs.</td>
+            <td style="color:#555; font-style:italic;">An operating system controls hardware devices and runs software applications on computers.</td>
+            <td style="text-align:center;">10</td>
+            <td style="text-align:center;"><b style="color:#2e7d32; font-size:15px;">7.15</b></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="EvaluatePaper.html" class="button button-teal">🚀 Test Paper Evaluation Now →</a>
+        <a href="FacultyScreen.html" class="button button-dark">🏆 View Current Leaderboard →</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div><b>evalvate.</b> AI-Based Smart Evaluation System</div>
+    <div>Project by G. Meghana · BVRIT</div>
+  </footer>
+
+  <script src="shared_app.js"></script>
+</body>
+</html>

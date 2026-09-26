@@ -1,0 +1,14 @@
+{
+  "Q1": {
+    "question": "Explain the process of photosynthesis in green plants.",
+    "answer": "Photosynthesis is the biological process by which green plants use sunlight, water, and carbon dioxide to produce oxygen and glucose energy."
+  },
+  "Q2": {
+    "question": "What is an algorithm and why is it important?",
+    "answer": "An algorithm is a step-by-step sequence of well-defined instructions designed to solve a specific problem or perform computation efficiently."
+  },
+  "Q3": {
+    "question": "What is an operating system?",
+    "answer": "An operating system is system software that manages computer hardware, software resources, and provides common services for computer programs."
+  }
+}

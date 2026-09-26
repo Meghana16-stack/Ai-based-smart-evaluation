@@ -1,12 +1,15 @@
 # Local databases and account data
 db.sqlite3
 *.sqlite3
+staticfiles/
 
 # Student papers, answer keys, and cached OCR output
 Dataset/
-EvaluateApp/static/ParseFiles/
-EvaluateApp/static/*.pdf
 EvaluateApp/static/uploads/
+!EvaluateApp/static/ParseFiles/Faculty_Reference_Key.pdf.txt
+!EvaluateApp/static/ParseFiles/Student_Answer_Sheet.pdf.txt
+!EvaluateApp/static/Faculty_Reference_Key.pdf
+!EvaluateApp/static/Student_Answer_Sheet.pdf
 *.pdf
 !sample_papers/*.pdf
 SCREENS.docx
