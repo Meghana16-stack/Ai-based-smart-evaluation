@@ -28,6 +28,23 @@ def db_connect():
     con.execute("""CREATE TABLE IF NOT EXISTS max_marks (
         from_question INTEGER, end_question INTEGER, marks INTEGER
     )""")
+    con.execute("""CREATE TABLE IF NOT EXISTS django_session (
+        session_key VARCHAR(40) PRIMARY KEY,
+        session_data TEXT NOT NULL,
+        expire_date DATETIME NOT NULL
+    )""")
+
+    # Auto-seed demo accounts and sample evaluation data on fresh database instances
+    cur = con.cursor()
+    cur.execute("SELECT count(*) FROM register")
+    if cur.fetchone()[0] == 0:
+        con.execute("INSERT OR IGNORE INTO register VALUES ('ProfSharma', 'pass123', '9876543210', 'prof@school.edu', 'Campus Block A', 'Faculty')")
+        con.execute("INSERT OR IGNORE INTO register VALUES ('faculty', 'pass123', '9876543210', 'faculty@school.edu', 'Campus Block A', 'Faculty')")
+        con.execute("INSERT OR IGNORE INTO register VALUES ('Meghana', 'pass123', '9123456780', 'meghana@school.edu', 'Hostel 3', 'Student')")
+        con.execute("INSERT OR IGNORE INTO register VALUES ('student', 'pass123', '9123456780', 'student@school.edu', 'Hostel 3', 'Student')")
+        con.execute("INSERT OR IGNORE INTO evaluation VALUES ('2026CS101', 'Meghana G', 'Explain cloud computing models.', 'Cloud computing provides IaaS, PaaS, and SaaS models on-demand over the internet.', '10', '9.5')")
+        con.execute("INSERT OR IGNORE INTO max_marks VALUES (1, 10, 10)")
+        con.commit()
     return con
 
 semantic_model = None

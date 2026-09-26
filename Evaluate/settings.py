@@ -58,6 +58,10 @@ try:
 except ImportError:
     pass
 
+# Use stateless signed cookies session engine for serverless environments (no database table needed)
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_HTTPONLY = True
+
 ROOT_URLCONF = 'Evaluate.urls'
 
 TEMPLATES = [
