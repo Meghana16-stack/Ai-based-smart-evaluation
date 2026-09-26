@@ -1,16 +1,2 @@
-numpy==1.26.4
-Django==4.2.5
-spacy==3.8.11
-torch==2.7.0
-torchvision==0.22.0
-transformers==4.50.0
-safetensors==0.4.3
-sentence-transformers==2.7.0
-PyMySQL==0.9.3
+Django==5.2.18
 google-generativeai==0.8.4
-google-ai-generativelanguage==0.6.15
-google-api-core==2.24.1
-google-api-python-client==2.160.0
-google-auth==2.23.4
-google-auth-httplib2==0.2.0
-google-auth-oauthlib==1.0.0
