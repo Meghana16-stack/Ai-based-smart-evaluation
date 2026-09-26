@@ -35,4 +35,6 @@ urlpatterns = [
     path("dashboard.html", views.student_dashboard, name="dashboard"),
     path("DemoDetails.html", views.DemoDetails, name="DemoDetails"),
     path("DemoDetails", views.DemoDetails, name="DemoDetails_clean"),
+    path("Evaluate/wsgi.py", views.index, name="wsgi_index"),
+    path("wsgi.py", views.index, name="wsgi_clean_index"),
 ]
